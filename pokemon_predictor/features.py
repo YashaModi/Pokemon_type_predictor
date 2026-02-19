@@ -1,23 +1,21 @@
 import cv2
 import numpy as np
-import os
-import requests
 from sklearn.cluster import KMeans
-from typing import Optional, List, Tuple, Union
+from typing import Optional, Tuple
 
-IMG_SIZE = (100, 100)
+from pokemon_predictor import config
+
 
 def extract_kmeans_features(img_path: str, k: int = 5) -> Optional[np.ndarray]:
     """
-    Extracts dominant colors from an image using K-Means clustering.
+    Extracts dominant colors from an image using K-Means clustering in CIELAB space.
 
     Args:
         img_path (str): Path to the image file.
-        k (int, optional): Number of clusters (dominant colors). Defaults to 5.
+        k (int, optional): Number of clusters. Defaults to 5.
 
     Returns:
-        Optional[np.ndarray]: A flattened array containing [R, G, B, Percentage] for each of the k clusters,
-                              sorted by percentage in descending order. Returns None if image processing fails.
+        Optional[np.ndarray]: Flattened array [L1, A1, B1, P1, ... Lk, Ak, Bk, Pk]
     """
     try:
         # Load image (BGR)
@@ -25,11 +23,11 @@ def extract_kmeans_features(img_path: str, k: int = 5) -> Optional[np.ndarray]:
         if img is None:
             return None
         
-        # Convert to RGB
+        # Convert to RGB (OpenCV loads as BGR)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         
         # Resize
-        img = cv2.resize(img, IMG_SIZE)
+        img = cv2.resize(img, config.IMG_SIZE)
         
         # Reshape to list of pixels
         pixels = img.reshape(-1, 3)
@@ -48,7 +46,7 @@ def extract_kmeans_features(img_path: str, k: int = 5) -> Optional[np.ndarray]:
         sorted_colors = colors[sorted_indices]
         sorted_percentages = percentages[sorted_indices]
         
-        # Flatten: [R1, G1, B1, Pct1, ... R5, G5, B5, Pct5]
+        # Flatten: [L1, A1, B1, Pct1, ... Lk, Ak, Bk, Pctk]
         feature_vector = []
         for i in range(k):
             feature_vector.extend(sorted_colors[i])
@@ -88,28 +86,3 @@ def extract_histogram_features(img_path: str, bins: Tuple[int, int, int] = (8, 8
     except Exception as e:
         print(f"Error processing {img_path}: {e}")
         return None
-
-def download_image_from_url(url: str, save_path: str) -> bool:
-    """
-    Downloads an image from a URL to a specified path.
-
-    Args:
-        url (str): The URL of the image.
-        save_path (str): Local path to save the image.
-
-    Returns:
-        bool: True if download was successful or file already exists, False otherwise.
-    """
-    if os.path.exists(save_path):
-        return True
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            with open(save_path, 'wb') as f:
-                f.write(response.content)
-            return True
-        else:
-            return False
-    except Exception as e:
-        print(f"Error downloading: {e}")
-        return False

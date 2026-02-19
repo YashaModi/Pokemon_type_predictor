@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=43.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pokemon_predictor"
+version = "0.1.0"
+description = "Pokemon Type Predictor"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"},
+]
+license = {text = "MIT"}
+dependencies = []
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
