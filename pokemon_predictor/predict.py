@@ -8,6 +8,7 @@ from tensorflow.keras.models import load_model
 
 from pokemon_predictor import config
 from pokemon_predictor.features import extract_kmeans_features, extract_histogram_features
+from pokemon_predictor.losses import FocalLoss
 
 
 class PokemonPredictor:
@@ -25,13 +26,13 @@ class PokemonPredictor:
             # Try loading optimized MLP
             opt_path = config.MODELS_DIR / "mlp_model_optimized.h5"
             if opt_path.exists():
-                self.mlp_model = load_model(opt_path)
+                self.mlp_model = load_model(opt_path, custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})
                 thresh_path = config.MODELS_DIR / "best_threshold.pkl"
                 if thresh_path.exists():
                     self.mlp_threshold = joblib.load(thresh_path)
                     print(f"Loaded optimized MLP with threshold: {self.mlp_threshold:.2f}")
             else:
-                self.mlp_model = load_model(config.MODELS_DIR / "mlp_model.h5")
+                self.mlp_model = load_model(config.MODELS_DIR / "mlp_model.h5", custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})
                 print("Loaded baseline MLP.")
                 
         except Exception as e:
@@ -92,7 +93,9 @@ class PokemonPredictor:
         pred_xgb = self.xgb_model.predict([feat_kmeans])
         labels_xgb = self.mlb.inverse_transform(pred_xgb)[0]
 
-        pred_probs_mlp = self.mlp_model.predict(np.array([feat_hist]), verbose=0)
+        # Hybrid model expects concatenated features (RGB + Hist)
+        feat_hybrid = np.concatenate([feat_kmeans, feat_hist])
+        pred_probs_mlp = self.mlp_model.predict(np.array([feat_hybrid]), verbose=0)
         pred_mlp = (pred_probs_mlp > self.mlp_threshold).astype(int)
         labels_mlp = self.mlb.inverse_transform(pred_mlp)[0]
 

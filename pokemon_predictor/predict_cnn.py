@@ -5,7 +5,7 @@ import joblib
 import pandas as pd
 from pathlib import Path
 from pokemon_predictor import config
-from pokemon_predictor.modeling.train_hybrid import FocalLoss # Custom object
+from pokemon_predictor.losses import FocalLoss
 
 from typing import Optional, Dict
 
@@ -80,4 +80,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         predict_cnn(sys.argv[1])
     else:
-        print("Usage: python -m pokemon_predictor.modeling.predict_cnn <image_name_or_path>")
+        print("Usage: python -m pokemon_predictor.predict_cnn <image_name_or_path>")

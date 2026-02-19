@@ -3,7 +3,7 @@ try:
     import pokemon_predictor
     import pokemon_predictor.config
     import pokemon_predictor.features
-    from pokemon_predictor.data_pipeline.download import fetch_pokemon_metadata
+    from pokemon_predictor.download import fetch_pokemon_metadata
     import tensorflow as tf
     import xgboost as xgb
     print(f"TensorFlow version: {tf.__version__}")

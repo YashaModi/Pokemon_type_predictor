@@ -6,7 +6,6 @@ This project compares the performance of two machine learning models in predicti
 
 ```
 pokemon_type_predictor/
-├── Makefile           <- Makefile with convenience commands
 ├── README.md          <- The top-level README for developers
 ├── data               <- Data directory
 │   ├── external       <- Data from third party sources
@@ -14,70 +13,94 @@ pokemon_type_predictor/
 │   └── raw            <- Original immutable data dump
 ├── models             <- Trained and serialized models
 ├── notebooks          <- Jupyter notebooks for experiments
-│   ├── baseline-models.ipynb
-│   ├── xgboost-tuning.ipynb
-│   ├── mlp-optimization.ipynb
-│   ├── feature-extraction-pipeline.ipynb
-│   ├── hybrid-models.ipynb
-│   ├── cnn-transfer-learning.ipynb
-│   ├── quantitative-evaluation.ipynb
-│   └── scenario-testing.ipynb
 ├── pyproject.toml     <- Project configuration file
-├── reports            <- Generated analysis
-│   └── figures        <- Generated graphics
-├── requirements.txt   <- Pinned dependencies for reproducibility
+├── requirements.txt   <- Pinned dependencies
 ├── setup.cfg          <- Configuration file for flake8
 ├── tests              <- Unit tests for the package
-└── pokemon_predictor  <- Source code package
-    ├── __init__.py    <- Makes pokemon_predictor a Python module
-    ├── config.py      <- Project configuration
-    ├── dataset.py     <- Data acquisition scripts
-    ├── features.py    <- Feature extraction logic
-    ├── modeling       <- Modeling scripts
-    │   ├── predict.py     <- XGBoost/MLP Inference
-    │   └── predict_cnn.py <- CNN Inference
-    └── plots.py       <- Visualization utilities
-├── verify_project.py  <- Project verification script
+├── pokemon_predictor  <- Source code package
+│   ├── __init__.py    <- Makes pokemon_predictor a Python module
+│   ├── config.py      <- Project configuration
+│   ├── download.py    <- Data acquisition scripts
+│   ├── features.py    <- Feature extraction logic
+│   ├── images.py      <- Image handling utilities
+│   ├── losses.py      <- Custom loss functions (FocalLoss)
+│   ├── plots.py       <- Visualization utilities
+│   ├── predict.py     <- XGBoost/MLP Inference
+│   ├── predict_cnn.py <- CNN Inference
+│   ├── tabular.py     <- Tabular data loading
+│   └── train.py       <- Model training script
+└── verify_project.py  <- Project verification script
 ```
 
 ## Setup
 
 1. **Install Dependencies:**
    ```bash
-   make requirements
+   pip install -r requirements.txt
+   pip install -e .
    ```
 
 2. **Acquire Data:**
    Run the data acquisition script:
    ```bash
-   make data
+   python -m pokemon_predictor.download
    ```
-   Or run `python -m pokemon_predictor.dataset.py`.
 
 3. **Train Models:**
-   Train and evaluate the models:
+   Train and evaluate the models (XGBoost & MLP):
    ```bash
-   make train
+   python -m pokemon_predictor.train
    ```
-   Or run `python -m pokemon_predictor.modeling.train`.
 
-4. **Run Notebooks:**
-   The notebooks in `notebooks/` are for exploration and prototyping.
-   - `1.0-data-loader.ipynb`: Initial data exploration.
-   - `2.0-feature-extraction.ipynb`: Feature engineering steps.
-   - `3.0-modeling-evaluation.ipynb`: detailed modeling analysis.
-   - `4.0-inference.ipynb`: Interactive inference.
+4. **Run Inference:**
+   ```bash
+   # XGBoost/MLP
+   python -m pokemon_predictor.predict <path_to_image>
+   
+   # CNN
+   python -m pokemon_predictor.predict_cnn <path_to_image>
+   ```
+
+5. **Run Notebooks:**
+   The notebooks in `notebooks/` are for exploration and prototyping:
+   - `data-loader.ipynb`: Initial data exploration and verification.
+   - `feature-extraction.ipynb`: Development of feature extraction logic.
+   - `baseline-models.ipynb`: Training baseline models for comparison.
+   - `xgboost-tuning.ipynb`: Hyperparameter optimization for XGBoost.
+   - `mlp-optimization.ipynb`: Architecture search for MLP.
+   - `hybrid-models.ipynb`: Training the Hybrid MLP (RGB + Histogram).
+   - `cnn-transfer-learning.ipynb`: Experiments with MobileNetV2.
+   - `quantitative-evaluation.ipynb`: Detailed metrics and confusion matrices.
+   - `scenario-testing.ipynb`: Testing model on specific edge cases.
 
    To use the project code within notebooks, ensure the package is installed in editable mode (`pip install -e .`).
 
 ## Methodology
 
 ### Track A: XGBoost
-- **Input:** Top 5 dominant colors (R, G, B) and their percentage coverage (Size: 20).
+- **Input:** Top 5 dominant colors (L*a*b* space converted from RGB) and their percentage coverage. Flattened vector of size 20 (5 colors * 4 features each).
 - **Pipeline:** `MultiOutputClassifier(XGBClassifier)`.
-- **Hypothesis:** Interpretable, fast and robust for limited data.
+- **Hypothesis:** Interpretable, fast, and robust for limited data. Good at capturing dominant color themes.
 
 ### Track B: MLP (Neural Network)
-- **Input:** Flattened 3D Color Histogram (8x8x8 bins = 512 size).
-- **Architecture:** `Dense(128) -> Dropout(0.3) -> Dense(64) -> Dense(18, Sigmoid)`.
-- **Hypothesis:** Captures richer color distribution information.
+- **Input:** **Hybrid Feature Vector** (Size: 532).
+    - Concatenation of Top 5 Dominant Colors (Size 20) + Flattened 3D Color Histogram (8x8x8 bins = 512 size).
+- **Architecture:** 
+    - `Input(532) -> Dense(512, ReLU) -> BN -> Dropout(0.4) -> Dense(256, ReLU) -> BN -> Dropout(0.3) -> Dense(18, Sigmoid)`.
+- **Loss Function:** `FocalLoss` (to handle class imbalance).
+- **Hypothesis:** Combining dominant colors with detailed color distribution provides the richest signal for prediction.
+
+### Status: Experimental (code available in `predict_cnn.py` and notebooks).
+
+## Sample Results
+
+Here are current inputs and outputs from the trained models:
+
+| Pokemon | Image | XGBoost Prediction | MLP Prediction (Hybrid) |
+| :---: | :---: | :--- | :--- |
+| **Charizard** (#6) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" width="100"> | `('Fire', 'Flying')` | `('Fire', 'Flying', 'Dragon', ...)` |
+| **Pikachu** (#25) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" width="100"> | `('Electric')` | `('Electric')` |
+| **Bulbasaur** (#1) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" width="100"> | `('Grass', 'Poison')` | `('Grass', 'Poison')` |
+
+*Note: The MLP model tends to be more aggressive with tagging due to the Focal Loss and thresholding, sometimes recovering secondary types that XGBoost misses, but occasionally over-predicting.*
+

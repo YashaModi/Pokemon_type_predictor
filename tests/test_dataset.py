@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import numpy as np
 from unittest.mock import patch, MagicMock
-from pokemon_predictor.data_pipeline.tabular import load_data
+from pokemon_predictor.tabular import load_data
 
 @pytest.fixture
 def mock_csvs(tmp_path):
@@ -22,7 +22,7 @@ def mock_csvs(tmp_path):
 def test_load_data_rgb(mock_csvs):
     x_k, _, y = mock_csvs
     
-    with patch('pokemon_predictor.data_pipeline.tabular.pd.read_csv') as mock_read:
+    with patch('pokemon_predictor.tabular.pd.read_csv') as mock_read:
         # Configure mock to return our dataframes
         # Order of calls: X_kmeans, y_labels
         mock_read.side_effect = [x_k, y]
@@ -37,7 +37,7 @@ def test_load_data_rgb(mock_csvs):
 def test_load_data_hybrid(mock_csvs):
     x_k, x_h, y = mock_csvs
     
-    with patch('pokemon_predictor.data_pipeline.tabular.pd.read_csv') as mock_read:
+    with patch('pokemon_predictor.tabular.pd.read_csv') as mock_read:
         # Order: X_kmeans, X_hist, y_labels
         mock_read.side_effect = [x_k, x_h, y]
         
