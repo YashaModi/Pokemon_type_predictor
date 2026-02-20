@@ -96,11 +96,11 @@ pokemon_type_predictor/
 
 Here are current inputs and outputs from the trained models:
 
-| Pokemon | Image | XGBoost Prediction | MLP Prediction (Top-2) |
+| Pokemon | Image | XGBoost Prediction | MLP Prediction (Top-3) |
 | :---: | :---: | :--- | :--- |
-| **Charizard** (#6) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" width="100"> | `('Fire', 'Flying')` | `('Flying', 'Bug')` |
+| **Charizard** (#6) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" width="100"> | `('Fire', 'Flying')` | `('Flying', 'Bug', 'Fire')` |
 | **Pikachu** (#25) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" width="100"> | `('Electric')` | `('Electric', 'Fairy')` |
-| **Bulbasaur** (#1) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" width="100"> | `('Grass', 'Poison')` | `('Poison', 'Normal')` |
+| **Bulbasaur** (#1) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" width="100"> | `('Grass', 'Poison')` | `('Poison', 'Normal', 'Grass')` |
 
-*Note: The MLP model is configured to output at most the **Top 2** highest probability types that cross the confidence threshold, mirroring the real-world constraint that Pokemon have at most 2 types. Color-only features sometimes lead to noisy predictions (e.g., predicting 'Bug' due to specific color palettes).*
+*Note: The MLP model is configured to output at most the **Top 3** highest probability types that cross the confidence threshold. Expanding to 3 guesses improves recall but often includes an incorrect third type since Pokemon have at most 2.*
 

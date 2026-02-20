@@ -11,31 +11,33 @@
 
 ## 2. Models Evaluated
 - **XGBoost**: `MultiOutputClassifier(XGBClassifier)`. Trained on RGB features.
-- **MLP (Hybrid) [Top-2]**: Neural Network trained on Hybrid features. Uses `FocalLoss` internally to score classes, but the output is strictly bounded to the **Top 2** highest probabilities that cross the 0.85 threshold.
+- **MLP (Hybrid) [Top-3]**: Neural Network trained on Hybrid features. Uses `FocalLoss` internally to score classes, but the output is strictly bounded to the **Top 3** highest probabilities that cross the 0.85 threshold.
 
 ## 3. Evaluation Results
 
 Performance metrics on the Test Set (20% hold-out):
 
-| Metric | XGBoost | MLP (Hybrid) [Top-2] |
+| Metric | XGBoost | MLP (Hybrid) [Top-3] |
 | :--- | :--- | :--- |
-| **Exact Match Accuracy** | 3.93% | 1.12% |
-| **F1 Score (Micro)** | 0.1042 | 0.1669 |
-| **F1 Score (Macro)** | 0.0685 | 0.1375 |
+| **Exact Match Accuracy** | 3.93% | 0.00% |
+| **F1 Score (Micro)** | 0.1042 | 0.1973 |
+| **F1 Score (Macro)** | 0.0685 | 0.1664 |
 | **Precision (Micro)** | 0.40 | 0.15 |
-| **Recall (Micro)** | 0.06 | 0.19 |
+| **Recall (Micro)** | 0.06 | 0.30 |
 
-### detailed Analysis
+### Detailed Analysis
 
 #### XGBoost (Baseline)
 - **Behavior**: Extremely conservative.
 - **Pros**: High precision (0.40) - when it predicts a type, it's often correct.
 - **Cons**: Very low recall (0.06) - it misses the vast majority of types, often predicting nothing or only the most obvious dominant color matches (e.g., Grass for green).
 
-#### MLP (Hybrid) [Top-2]
-- **Behavior**: Aggressive internal scoring, but bounded output.
-- **Impact of Top-2 Logic**: By restricting the output to at most 2 types, we improved Exact Match Accuracy (from 0% to 1.12%) and Precision (from 0.10 to 0.15), at the cost of a massive drop in Recall (from 0.80 down to 0.19). 
-- **Summary**: The model is no longer "spamming" predictions, making the few guesses it does provide slightly more trustworthy, but it still struggles to pinpoint the exact 1 or 2 correct types reliably from color alone.
+#### MLP (Hybrid) [Top-3]
+- **Behavior**: More balanced recall/precision trade-off via output bounding.
+- **Impact of Top-3 vs Top-2 Logic**: 
+    - Expanding the limit from Top-2 to Top-3 increased **Recall** significantly (from 0.19 up to 0.30) and overall **F1 Score** (from 0.16 to 0.19), because the model is allowed an extra guess to catch correct secondary types.
+    - However, **Exact Match Accuracy** dropped to 0%. Since a Pokemon can only have at most 2 actual types, a Top-3 prediction is mathematically guaranteed to be a "partial match" (never an "exact match") if the model outputs 3 types!
+- **Summary**: Top-3 provides a higher likelihood of capturing the true types (better recall), but creates inherently "imprecise" sets (since it often includes a 3rd incorrect type).
 
 ## 4. Visual Analysis & Observations
 - **Input Data Limitations**: The models rely solely on *color*. This is insufficient for distinguishing types that share color palettes (e.g., Water vs Ice, Ground vs Rock, Ghost vs Poison).

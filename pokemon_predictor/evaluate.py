@@ -53,7 +53,7 @@ def evaluate_models():
 
         y_pred_probs = mlp_model.predict(X_test, verbose=0)
         
-        # Apply Top-2 logic per sample
+        # Apply Top-3 logic per sample
         y_pred = np.zeros_like(y_pred_probs, dtype=int)
         for i in range(len(y_pred_probs)):
             probs = y_pred_probs[i]
@@ -61,7 +61,7 @@ def evaluate_models():
             if len(passing) > 0:
                 passing_probs = probs[passing]
                 sorted_idx_relative = np.argsort(passing_probs)[::-1]
-                top_indices = passing[sorted_idx_relative][:2]
+                top_indices = passing[sorted_idx_relative][:3]
                 y_pred[i, top_indices] = 1
         
         acc = accuracy_score(y_test, y_pred)

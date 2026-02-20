@@ -110,8 +110,8 @@ class PokemonPredictor:
             sorted_idx_relative = np.argsort(passing_probs)[::-1]
             sorted_passing_indices = passing_indices[sorted_idx_relative]
             
-            # Take at most top 2
-            top_indices = sorted_passing_indices[:2]
+            # Take at most top 3
+            top_indices = sorted_passing_indices[:3]
             
             # Convert to class labels
             labels_mlp = tuple([self.mlb.classes_[i] for i in top_indices])
