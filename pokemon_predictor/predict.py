@@ -95,9 +95,26 @@ class PokemonPredictor:
 
         # Hybrid model expects concatenated features (RGB + Hist)
         feat_hybrid = np.concatenate([feat_kmeans, feat_hist])
-        pred_probs_mlp = self.mlp_model.predict(np.array([feat_hybrid]), verbose=0)
-        pred_mlp = (pred_probs_mlp > self.mlp_threshold).astype(int)
-        labels_mlp = self.mlb.inverse_transform(pred_mlp)[0]
+        pred_probs_mlp = self.mlp_model.predict(np.array([feat_hybrid]), verbose=0)[0]
+        
+        # Get indices of classes where probability > threshold
+        passing_indices = np.where(pred_probs_mlp > self.mlp_threshold)[0]
+        
+        if len(passing_indices) == 0:
+            labels_mlp = ()
+        else:
+            # Get probabilities for passing classes
+            passing_probs = pred_probs_mlp[passing_indices]
+            
+            # Sort descending by probability
+            sorted_idx_relative = np.argsort(passing_probs)[::-1]
+            sorted_passing_indices = passing_indices[sorted_idx_relative]
+            
+            # Take at most top 2
+            top_indices = sorted_passing_indices[:2]
+            
+            # Convert to class labels
+            labels_mlp = tuple([self.mlb.classes_[i] for i in top_indices])
 
         return {
             "xgboost": labels_xgb,

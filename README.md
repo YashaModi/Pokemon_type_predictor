@@ -96,11 +96,11 @@ pokemon_type_predictor/
 
 Here are current inputs and outputs from the trained models:
 
-| Pokemon | Image | XGBoost Prediction | MLP Prediction (Hybrid) |
+| Pokemon | Image | XGBoost Prediction | MLP Prediction (Top-2) |
 | :---: | :---: | :--- | :--- |
-| **Charizard** (#6) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" width="100"> | `('Fire', 'Flying')` | `('Fire', 'Flying', 'Dragon', ...)` |
-| **Pikachu** (#25) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" width="100"> | `('Electric')` | `('Electric')` |
-| **Bulbasaur** (#1) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" width="100"> | `('Grass', 'Poison')` | `('Grass', 'Poison')` |
+| **Charizard** (#6) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" width="100"> | `('Fire', 'Flying')` | `('Flying', 'Bug')` |
+| **Pikachu** (#25) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" width="100"> | `('Electric')` | `('Electric', 'Fairy')` |
+| **Bulbasaur** (#1) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" width="100"> | `('Grass', 'Poison')` | `('Poison', 'Normal')` |
 
-*Note: The MLP model tends to be more aggressive with tagging due to the Focal Loss and thresholding, sometimes recovering secondary types that XGBoost misses, but occasionally over-predicting.*
+*Note: The MLP model is configured to output at most the **Top 2** highest probability types that cross the confidence threshold, mirroring the real-world constraint that Pokemon have at most 2 types. Color-only features sometimes lead to noisy predictions (e.g., predicting 'Bug' due to specific color palettes).*
 
