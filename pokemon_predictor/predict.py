@@ -97,24 +97,33 @@ class PokemonPredictor:
         feat_hybrid = np.concatenate([feat_kmeans, feat_hist])
         pred_probs_mlp = self.mlp_model.predict(np.array([feat_hybrid]), verbose=0)[0]
         
-        # Get indices of classes where probability > threshold
-        passing_indices = np.where(pred_probs_mlp > self.mlp_threshold)[0]
+        from itertools import combinations
         
-        if len(passing_indices) == 0:
-            labels_mlp = ()
-        else:
-            # Get probabilities for passing classes
-            passing_probs = pred_probs_mlp[passing_indices]
+        # Get indices of classes where probability > some minimal threshold so we don't combine garbage.
+        # Let's use 0.1 as a base cutoff to generate combinations, but keep self.mlp_threshold as a guiding metric.
+        # Actually, using self.mlp_threshold (e.g. 0.85) might be too strict if no types cross it, resulting in empty predictions.
+        # Let's just use the top 5 highest probabilities to form our pool of possibilities to combine.
+        top_5_indices = np.argsort(pred_probs_mlp)[::-1][:5]
+        
+        combinations_scored = []
+        
+        # 1. Monotypes (Single types)
+        for idx in top_5_indices:
+            score = pred_probs_mlp[idx]
+            combinations_scored.append((score, (self.mlb.classes_[idx],)))
             
-            # Sort descending by probability
-            sorted_idx_relative = np.argsort(passing_probs)[::-1]
-            sorted_passing_indices = passing_indices[sorted_idx_relative]
+        # 2. Dual types (Pairs of distinct types)
+        for idx1, idx2 in combinations(top_5_indices, 2):
+            score = pred_probs_mlp[idx1] + pred_probs_mlp[idx2]
+            # Order tuple alphabetically to match MLB transform norms somewhat, though it doesn't strictly matter
+            c1, c2 = self.mlb.classes_[idx1], self.mlb.classes_[idx2]
+            combinations_scored.append((score, (c1, c2)))
             
-            # Take at most top 3
-            top_indices = sorted_passing_indices[:3]
-            
-            # Convert to class labels
-            labels_mlp = tuple([self.mlb.classes_[i] for i in top_indices])
+        # Sort by score descending
+        combinations_scored.sort(key=lambda x: x[0], reverse=True)
+        
+        # Take the top 3 combinations
+        labels_mlp = [combo for score, combo in combinations_scored[:3]]
 
         return {
             "xgboost": labels_xgb,
