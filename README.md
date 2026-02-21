@@ -79,15 +79,24 @@ pokemon_type_predictor/
 - **Loss Function:** `BinaryCrossEntropy` (with `label_smoothing=0.1` and mathematically computed `class_weights` mapped to mitigate Normal/Water type biases).
 - **Hypothesis:** Deep and narrow architectural pipelines extract the best abstract representations from the 540-feature inputs, but the tiny dataset size (~1,000 images) forces even aggressive Dropout layers to overfit, limiting validation accuracy to ~21%.
 
-## Sample Results
+## Sample Results & Final Metrics
 
-Here are current inputs and outputs from the trained models:
+### Quantitative Performance (Hold-Out Test Set: ~200 images)
 
-| Pokemon | Image | XGBoost Prediction | MLP Prediction (Top-3 Combinations) |
-| :---: | :---: | :--- | :--- |
-| **Charizard** (#6) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" width="100"> | `('Fire', 'Flying')` | `[('Fire', 'Flying'), ('Fire',), ('Flying',)]` |
-| **Pikachu** (#25) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" width="100"> | `('Electric',)` | `[('Electric',), ('Electric', 'Fairy'), ('Fairy',)]` |
-| **Bulbasaur** (#1) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" width="100"> | `('Grass', 'Poison')` | `[('Grass', 'Poison'), ('Grass',), ('Poison',)]` |
+| Metric | XGBoost (RGB + 8 Bio-Ratios) | MLP (Hybrid + 8 Bio-Ratios) |
+| :--- | :--- | :--- |
+| **Exact Match Accuracy (Full Success)** | 44.55% | 0.61% |
+| **Partial Match Accuracy** | 90.45% | 21.36% |
+| **F1 Score (Micro)** | 0.7425 | 0.1246 |
 
-*Note: The MLP model now generates valid 1-type or 2-type combinations from its highest-confidence predictions, scores them by combined probability, and outputs the top 3 most likely valid typings.*
+**Conclusion:** The purely tabular XGBoost model heavily outperforms the Deep Neural Network. The MLP struggles to overcome the ~1,000-image dataset barrier, leading to structural overfitting regardless of heavy L2 regularization, label smoothing, and dynamic class weights. However, XGBoost's mathematical tree-splitting effortlessly maximizes the dataset size to generalize successfully!
 
+### Visual Prediction Grid
+
+The following grid illustrates the finalized predictions from both pipelines on unseen data.
+- **Top 2 Rows:** XGBoost predictions (Green = Exact Match, Yellow = Partial Match, Red = Miss).
+- **Bottom 2 Rows:** Neural Network predictions (struggling to surpass the Normal/Water dominant biases).
+
+<p align="center">
+  <img src="reports/figures/prediction_examples.png" alt="Prediction Examples Grid" width="800"/>
+</p>
