@@ -83,10 +83,10 @@ pokemon_type_predictor/
 ### Track B: MLP (Neural Network)
 - **Input:** **Hybrid Feature Vector** (Size: 540).
     - Concatenation of Top 5 Dominant Colors (Size 20) + Flattened 3D Color Histogram (8x8x8 bins = 512 size) + 8 Biological Ratios/Totals (Size 8).
-- **Architecture:** 
-    - `Input(540) -> Dense(512, ReLU) -> BN -> Dropout(0.4) -> Dense(256, ReLU) -> BN -> Dropout(0.3) -> Dense(18, Sigmoid)`.
+- **Topology:** `Input(540) -> Dense(256) -> BN -> Dropout(0.4) -> Dense(128) -> BN -> Dropout(0.3) -> Dense(64) -> BN -> Dropout(0.2) -> Dense(32) -> Dense(18, Sigmoid)`.
+- **Optimizer:** `Adam` with `EarlyStopping` monitoring `val_loss`.
 - **Loss Function:** `FocalLoss` (to handle class imbalance).
-- **Hypothesis:** Combining dominant colors with detailed color distribution and biological stats provides the richest signal for prediction.
+- **Hypothesis:** Deep and narrow architectural pipelines extract the best abstract representations from the 540-feature inputs, but the tiny dataset size (~1,000 images) forces even aggressive Dropout layers to overfit, limiting validation accuracy to ~21%.
 
 ## Sample Results
 
