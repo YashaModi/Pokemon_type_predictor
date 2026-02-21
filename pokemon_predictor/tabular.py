@@ -41,19 +41,27 @@ def load_data(
     else:
         raise ValueError(f"Unknown feature_type: {feature_type}")
 
-    # 1.5 Load and Append Base Stats
+    # 1.5 Load and Calculate Advanced Base Stat Ratios
     meta = pd.read_csv(config.PROCESSED_DATA_DIR / "pokemon_metadata.csv")
     y_labels_temp = pd.read_csv(config.PROCESSED_DATA_DIR / "y_labels.csv")
     stats_df = y_labels_temp[['id']].merge(meta[['id', 'hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed']], on='id', how='left')
     stats_raw = stats_df[['hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed']].fillna(60)
     
-    def bin_stat(val):
-        if val < 50: return 0.0
-        if val < 90: return 0.5
-        return 1.0
-        
-    stats_features = stats_raw.map(bin_stat) if hasattr(stats_raw, 'map') else stats_raw.applymap(bin_stat)
-    X = pd.concat([X, stats_features], axis=1)
+    # Calculate Biological Ratios
+    epsilon = 1e-5
+    ratios = pd.DataFrame(index=stats_raw.index)
+    ratios['phys_spec'] = stats_raw['attack'] / (stats_raw['sp_attack'] + epsilon)
+    ratios['bulk'] = (stats_raw['hp'] + stats_raw['defense'] + stats_raw['sp_defense']) / (stats_raw['speed'] + epsilon)
+    ratios['glass_cannon'] = (stats_raw['attack'] + stats_raw['sp_attack'] + stats_raw['speed']) / (stats_raw['hp'] + stats_raw['defense'] + stats_raw['sp_defense'] + epsilon)
+    ratios['phys_pillar'] = stats_raw['defense'] / (stats_raw['speed'] + epsilon)
+    ratios['sweeper'] = stats_raw['speed'] / (stats_raw['hp'] + epsilon)
+    
+    # Scale ratios with RobustScaler to handle extreme outliers (like Shuckle's Defense)
+    from sklearn.preprocessing import RobustScaler
+    scaler = RobustScaler()
+    scaled_ratios = pd.DataFrame(scaler.fit_transform(ratios), columns=ratios.columns)
+    
+    X = pd.concat([X, scaled_ratios], axis=1)
 
     # 2. Load and Encode Labels
     y_labels = pd.read_csv(config.PROCESSED_DATA_DIR / "y_labels.csv")

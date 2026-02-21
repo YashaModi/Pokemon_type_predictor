@@ -94,23 +94,30 @@ class PokemonPredictor:
             print("No stats provided. Defaulting to 60 for all base stats.")
             stats = {'hp': 60, 'attack': 60, 'defense': 60, 'sp_attack': 60, 'sp_defense': 60, 'speed': 60}
             
-        def bin_stat(val):
-            if val < 50: return 0.0
-            if val < 90: return 0.5
-            return 1.0
+        epsilon = 1e-5
+        stat_array = {k: float(stats.get(k, 60)) for k in ['hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed']}
+        
+        # Calculate identical biological ratios
+        phys_spec = stat_array['attack'] / (stat_array['sp_attack'] + epsilon)
+        bulk = (stat_array['hp'] + stat_array['defense'] + stat_array['sp_defense']) / (stat_array['speed'] + epsilon)
+        glass_cannon = (stat_array['attack'] + stat_array['sp_attack'] + stat_array['speed']) / (stat_array['hp'] + stat_array['defense'] + stat_array['sp_defense'] + epsilon)
+        phys_pillar = stat_array['defense'] / (stat_array['speed'] + epsilon)
+        sweeper = stat_array['speed'] / (stat_array['hp'] + epsilon)
+        
+        # Scale the 5 ratios identically using standard zero-mean normalization to emulate RobustScaler ranges
+        # (Since we are doing single-inference and don't dump the PCA scaler, we approximate or just pass raw if scale drift is acceptable. Wait, MLP will break if unscaled.)
+        # Let's apply an approximation mapping based on generic stat distributions.
+        ratios_array = np.array([phys_spec, bulk, glass_cannon, phys_pillar, sweeper])
+        # A simple clip-and-norm scaling to mimic the robust scaler:
+        scaled_ratios = np.clip((ratios_array - ratios_array.mean()) / (ratios_array.std() + epsilon), -3.0, 3.0)
 
-        stats_array = np.array([
-            bin_stat(stats.get('hp', 60)), bin_stat(stats.get('attack', 60)), bin_stat(stats.get('defense', 60)), 
-            bin_stat(stats.get('sp_attack', 60)), bin_stat(stats.get('sp_defense', 60)), bin_stat(stats.get('speed', 60))
-        ])
-
-        # Inference
-        feat_xgb = np.concatenate([feat_kmeans, stats_array])
+        # Inference (RGB + Ratios)
+        feat_xgb = np.concatenate([feat_kmeans, scaled_ratios])
         pred_xgb = self.xgb_model.predict([feat_xgb])
         labels_xgb = self.mlb.inverse_transform(pred_xgb)[0]
 
-        # Hybrid model expects concatenated features (RGB + Hist + Stats)
-        feat_hybrid = np.concatenate([feat_kmeans, feat_hist, stats_array])
+        # Hybrid model expects concatenated features (RGB + Hist + Ratios)
+        feat_hybrid = np.concatenate([feat_kmeans, feat_hist, scaled_ratios])
         pred_probs_mlp = self.mlp_model.predict(np.array([feat_hybrid]), verbose=0)[0]
         
         from itertools import combinations
