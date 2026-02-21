@@ -42,7 +42,15 @@ Performance metrics on the Test Set (20% hold-out):
 - **Pros**: Bridges the gap between raw probability outputs and domain constraints. Allows the user to see the top 3 most statistically valid combinations.
 - **Cons**: The neural network architecture struggles to isolate the tabular Biological Ratios as aggressively as decision trees do, resulting in lower overall F1 micro-scores compared to XGBoost.
 
-## 4. Visual Analysis & Observations
+## 4. Evolution of the XGBoost Model
+Throughout the project lifecycle, the XGBoost baseline underwent several aggressive upgrades to reach its current performance:
+1. **Initial Baseline (Image Only)**: The original model was trained purely on K-Means extracted colors (RGB). It struggled to differentiate ambiguous colors (e.g., Water vs Ice) and frequently failed on dual-typings.
+2. **Biological Ratios Integration**: Five custom biological ratios (Physical/Special, Bulk, Glass Cannon, Physical Pillar, Sweeper) were engineered from the Pokémon's base stats. Concatenating these tabular features with the visual RGB features broke the "ambiguous color" ceiling, resulting in a massive 10x multiplier to the F1 score.
+3. **Hyperparameter Regularization**: To prevent the trees from mathematically memorizing the powerful biological ratios (which ruins test-set generalization), strict regularization was introduced (`colsample_bytree = 0.75`, `max_depth = 5`).
+4. **Bayesian Tuning & SMOTE (Attempted)**: `Optuna` was used alongside `SMOTE` oversampling to aid minority classes (Ghost, Ice). This experiment failed (degrading the F1 to `0.425`), proving that synthetically interpolating visual RGB features alongside tabular data introduces destructive noise rather than learning better boundaries.
+5. **Thresholding Fallbacks**: Originally, XGBoost used a strict `>0.50` probability cutoff. If uncertain, it outputted empty ("None") predictions. The inference script (`predict.py`) was upgraded to fall back to an `argmax` selection of the highest confidence probabilities when uncertain, propelling the Partial Match Accuracy to 45.30%.
+
+## 5. Visual Analysis & Observations
 - **Input Data Synergy**: By combining computer vision (K-Means/Histograms) with tabular metadata (Base Stats Ratios), the models broke through the "ambiguous color" ceiling. For example, Water and Ice Pokémon often share identical blue palettes, but their distinct biological speed and defense ratios allow them to be separated algorithmically.
 - **Metric Context**: "Exact Match Accuracy" requires predicting the *entire set* of types perfectly. Because many Pokémon are dual-type, hitting an exact match stringently is rare. The F1 micro-score is the anchor metric for evaluating partial correctness.
 
