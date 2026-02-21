@@ -26,7 +26,7 @@ class PokemonPredictor:
             self.scaler = joblib.load(config.MODELS_DIR / "robust_scaler.pkl")
             
             # Try loading optimized MLP
-            opt_path = config.MODELS_DIR / "mlp_model_optimized.keras"
+            opt_path = config.MODELS_DIR / "mlp_model_optimized.h5"
             if opt_path.exists():
                 self.mlp_model = load_model(opt_path, custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})
                 thresh_path = config.MODELS_DIR / "best_threshold.pkl"
@@ -34,7 +34,7 @@ class PokemonPredictor:
                     self.mlp_threshold = joblib.load(thresh_path)
                     print(f"Loaded optimized MLP with threshold: {self.mlp_threshold:.2f}")
             else:
-                self.mlp_model = load_model(config.MODELS_DIR / "mlp_model.h5", custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})
+                self.mlp_model = load_model(config.MODELS_DIR / "mlp_model_clean.h5", custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})
                 print("Loaded baseline MLP.")
                 
         except Exception as e:
@@ -140,36 +140,40 @@ class PokemonPredictor:
         labels_xgb = self.mlb.inverse_transform(np.array([pred_xgb]))[0]
 
         # Hybrid model expects concatenated features (RGB + Hist + Ratios)
-        feat_hybrid = np.concatenate([feat_kmeans, feat_hist, scaled_ratios])
-        pred_probs_mlp = self.mlp_model.predict(np.array([feat_hybrid]), verbose=0)[0]
-        
-        from itertools import combinations
-        
-        # Get indices of classes where probability > some minimal threshold so we don't combine garbage.
-        # Let's use 0.1 as a base cutoff to generate combinations, but keep self.mlp_threshold as a guiding metric.
-        # Actually, using self.mlp_threshold (e.g. 0.85) might be too strict if no types cross it, resulting in empty predictions.
-        # Let's just use the top 5 highest probabilities to form our pool of possibilities to combine.
-        top_5_indices = np.argsort(pred_probs_mlp)[::-1][:5]
-        
-        combinations_scored = []
-        
-        # 1. Monotypes (Single types)
-        for idx in top_5_indices:
-            score = pred_probs_mlp[idx]
-            combinations_scored.append((score, (self.mlb.classes_[idx],)))
+        labels_mlp = []
+        try:
+            feat_hybrid = np.concatenate([feat_kmeans, feat_hist, scaled_ratios])
+            pred_probs_mlp = self.mlp_model.predict(np.array([feat_hybrid]), verbose=0)[0]
             
-        # 2. Dual types (Pairs of distinct types)
-        for idx1, idx2 in combinations(top_5_indices, 2):
-            score = pred_probs_mlp[idx1] + pred_probs_mlp[idx2]
-            # Order tuple alphabetically to match MLB transform norms somewhat, though it doesn't strictly matter
-            c1, c2 = self.mlb.classes_[idx1], self.mlb.classes_[idx2]
-            combinations_scored.append((score, (c1, c2)))
+            from itertools import combinations
             
-        # Sort by score descending
-        combinations_scored.sort(key=lambda x: x[0], reverse=True)
-        
-        # Take the top 3 combinations
-        labels_mlp = [combo for score, combo in combinations_scored[:3]]
+            # Get indices of classes where probability > some minimal threshold so we don't combine garbage.
+            # Let's use 0.1 as a base cutoff to generate combinations, but keep self.mlp_threshold as a guiding metric.
+            # Actually, using self.mlp_threshold (e.g. 0.85) might be too strict if no types cross it, resulting in empty predictions.
+            # Let's just use the top 5 highest probabilities to form our pool of possibilities to combine.
+            top_5_indices = np.argsort(pred_probs_mlp)[::-1][:5]
+            
+            combinations_scored = []
+            
+            # 1. Monotypes (Single types)
+            for idx in top_5_indices:
+                score = pred_probs_mlp[idx]
+                combinations_scored.append((score, (self.mlb.classes_[idx],)))
+                
+            # 2. Dual types (Pairs of distinct types)
+            for idx1, idx2 in combinations(top_5_indices, 2):
+                score = pred_probs_mlp[idx1] + pred_probs_mlp[idx2]
+                # Order tuple alphabetically to match MLB transform norms somewhat, though it doesn't strictly matter
+                c1, c2 = self.mlb.classes_[idx1], self.mlb.classes_[idx2]
+                combinations_scored.append((score, (c1, c2)))
+                
+            # Sort by score descending
+            combinations_scored.sort(key=lambda x: x[0], reverse=True)
+            
+            # Take the top 3 combinations
+            labels_mlp = [combo for score, combo in combinations_scored[:3]]
+        except Exception as e:
+            pass
 
         return {
             "xgboost": labels_xgb,
