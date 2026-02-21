@@ -45,7 +45,14 @@ def load_data(
     meta = pd.read_csv(config.PROCESSED_DATA_DIR / "pokemon_metadata.csv")
     y_labels_temp = pd.read_csv(config.PROCESSED_DATA_DIR / "y_labels.csv")
     stats_df = y_labels_temp[['id']].merge(meta[['id', 'hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed']], on='id', how='left')
-    stats_features = stats_df[['hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed']].fillna(60) / 255.0
+    stats_raw = stats_df[['hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed']].fillna(60)
+    
+    def bin_stat(val):
+        if val < 50: return 0.0
+        if val < 90: return 0.5
+        return 1.0
+        
+    stats_features = stats_raw.map(bin_stat) if hasattr(stats_raw, 'map') else stats_raw.applymap(bin_stat)
     X = pd.concat([X, stats_features], axis=1)
 
     # 2. Load and Encode Labels

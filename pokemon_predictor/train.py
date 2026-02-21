@@ -58,7 +58,7 @@ def train_xgboost():
     # mlb.classes_ = classes is the way if we trust it.
     
     # Let's just training XGBoost first.
-    model = MultiOutputClassifier(XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.1, n_jobs=-1, random_state=42))
+    model = MultiOutputClassifier(XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.1, colsample_bytree=0.5, n_jobs=-1, random_state=42))
     model.fit(X_train, y_train)
     
     score = model.score(X_test, y_test)

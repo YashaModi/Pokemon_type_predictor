@@ -94,10 +94,15 @@ class PokemonPredictor:
             print("No stats provided. Defaulting to 60 for all base stats.")
             stats = {'hp': 60, 'attack': 60, 'defense': 60, 'sp_attack': 60, 'sp_defense': 60, 'speed': 60}
             
+        def bin_stat(val):
+            if val < 50: return 0.0
+            if val < 90: return 0.5
+            return 1.0
+
         stats_array = np.array([
-            stats.get('hp', 60), stats.get('attack', 60), stats.get('defense', 60), 
-            stats.get('sp_attack', 60), stats.get('sp_defense', 60), stats.get('speed', 60)
-        ]) / 255.0
+            bin_stat(stats.get('hp', 60)), bin_stat(stats.get('attack', 60)), bin_stat(stats.get('defense', 60)), 
+            bin_stat(stats.get('sp_attack', 60)), bin_stat(stats.get('sp_defense', 60)), bin_stat(stats.get('speed', 60))
+        ])
 
         # Inference
         feat_xgb = np.concatenate([feat_kmeans, stats_array])

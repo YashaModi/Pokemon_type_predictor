@@ -1,69 +1,69 @@
 === MODEL EVALUATION REPORT ===
 
 --- XGBoost Evaluation ---
-Accuracy (Subset): 0.2667
-F1 Score (Micro): 0.5164
-F1 Score (Macro): 0.4994
+Accuracy (Subset): 0.0758
+F1 Score (Micro): 0.1678
+F1 Score (Macro): 0.1644
 
 Classification Report:
               precision    recall  f1-score   support
 
-         Bug       1.00      0.44      0.62        54
-        Dark       0.88      0.16      0.27        43
-      Dragon       0.89      0.34      0.49        47
-    Electric       0.92      0.24      0.39        45
-       Fairy       0.92      0.27      0.41        45
-    Fighting       0.92      0.32      0.47        38
-        Fire       0.88      0.28      0.42        50
-      Flying       0.94      0.41      0.57        80
-       Ghost       0.92      0.32      0.48        37
-       Grass       0.89      0.19      0.32        83
-      Ground       0.81      0.44      0.57        50
-         Ice       0.90      0.30      0.45        30
-      Normal       0.91      0.54      0.68        89
-      Poison       0.94      0.32      0.48        53
-     Psychic       0.97      0.46      0.62        63
-        Rock       0.97      0.49      0.65        57
-       Steel       0.90      0.56      0.69        50
-       Water       0.89      0.26      0.40        93
+         Bug       0.45      0.09      0.15        54
+        Dark       1.00      0.05      0.09        43
+      Dragon       1.00      0.06      0.12        47
+    Electric       0.80      0.09      0.16        45
+       Fairy       0.40      0.09      0.15        45
+    Fighting       0.57      0.11      0.18        38
+        Fire       0.40      0.04      0.07        50
+      Flying       0.57      0.05      0.09        80
+       Ghost       0.50      0.14      0.21        37
+       Grass       0.56      0.06      0.11        83
+      Ground       0.64      0.14      0.23        50
+         Ice       0.62      0.17      0.26        30
+      Normal       0.75      0.20      0.32        89
+      Poison       0.50      0.02      0.04        53
+     Psychic       0.57      0.13      0.21        63
+        Rock       0.91      0.18      0.29        57
+       Steel       0.42      0.10      0.16        50
+       Water       0.60      0.06      0.12        93
 
-   micro avg       0.92      0.36      0.52      1007
-   macro avg       0.91      0.35      0.50      1007
-weighted avg       0.91      0.36      0.51      1007
- samples avg       0.45      0.36      0.39      1007
+   micro avg       0.61      0.10      0.17      1007
+   macro avg       0.63      0.10      0.16      1007
+weighted avg       0.62      0.10      0.16      1007
+ samples avg       0.14      0.11      0.12      1007
 
 
 --- MLP (Hybrid) Evaluation ---
 Using Threshold: 0.85
-Top-1 Accuracy (Exact Match): 0.0061
-Top-3 Accuracy (Any Exact Match): 0.0136
+Top-1 Accuracy (Exact Match): 0.0015
+Top-3 Accuracy (Any Exact Match): 0.0106
 Top-1 F1 Score (Micro): 0.1220
-Top-1 F1 Score (Macro): 0.0924
+Top-1 F1 Score (Macro): 0.0979
 
 Classification Report (Based on Top-1 Prediction):
               precision    recall  f1-score   support
 
-         Bug       0.06      0.02      0.03        54
-        Dark       0.06      0.23      0.09        43
-      Dragon       0.09      0.55      0.15        47
-    Electric       0.05      0.02      0.03        45
-       Fairy       0.03      0.04      0.04        45
-    Fighting       0.10      0.21      0.13        38
-        Fire       0.11      0.18      0.14        50
-      Flying       0.13      0.15      0.14        80
+         Bug       0.06      0.04      0.04        54
+        Dark       0.05      0.14      0.07        43
+      Dragon       0.13      0.15      0.14        47
+    Electric       0.10      0.07      0.08        45
+       Fairy       0.11      0.09      0.10        45
+    Fighting       0.05      0.08      0.06        38
+        Fire       0.08      0.26      0.13        50
+      Flying       0.15      0.06      0.09        80
        Ghost       0.00      0.00      0.00        37
-       Grass       0.13      0.11      0.12        83
-      Ground       0.03      0.02      0.02        50
+       Grass       0.11      0.30      0.16        83
+      Ground       0.08      0.08      0.08        50
          Ice       0.00      0.00      0.00        30
-      Normal       0.00      0.00      0.00        89
-      Poison       0.33      0.02      0.04        53
-     Psychic       0.19      0.25      0.22        63
-        Rock       0.15      0.11      0.12        57
-       Steel       0.12      0.32      0.17        50
-       Water       0.19      0.26      0.22        93
+      Normal       0.14      0.24      0.18        89
+      Poison       0.12      0.15      0.14        53
+     Psychic       0.13      0.32      0.18        63
+        Rock       0.13      0.07      0.09        57
+       Steel       0.05      0.04      0.05        50
+       Water       0.19      0.16      0.18        93
 
    micro avg       0.11      0.14      0.12      1007
-   macro avg       0.10      0.14      0.09      1007
-weighted avg       0.11      0.14      0.10      1007
- samples avg       0.11      0.14      0.12      1007
+   macro avg       0.09      0.12      0.10      1007
+weighted avg       0.11      0.14      0.11      1007
+ samples avg       0.11      0.15      0.12      1007
 
