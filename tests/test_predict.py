@@ -40,6 +40,10 @@ def test_predict_returns_correct_format(mock_hist, mock_kmeans, mock_load, dummy
     # Mock predicting 3 classes with decreasing probability
     predictor.mlp_model.predict.return_value = np.array([[0.8, 0.4, 0.1]])
     
+    # Inject Scaler Mock for 8-dim biological ratios
+    predictor.scaler = MagicMock()
+    predictor.scaler.transform.return_value = [np.zeros(8)]
+    
     # Run prediction
     res = predictor.predict(dummy_image)
     

@@ -42,7 +42,7 @@ def test_load_data_rgb(mock_csvs):
         assert len(classes) == 2 # Fire, Water
         assert X_train.shape[0] == 8
         assert X_test.shape[0] == 2
-        assert X_train.shape[1] == 25  # 20 + 5 ratios
+        assert X_train.shape[1] == 28  # 20 + 8 ratios
 
 def test_load_data_hybrid(mock_csvs):
     x_k, x_h, y, meta = mock_csvs
@@ -53,5 +53,5 @@ def test_load_data_hybrid(mock_csvs):
         
         X, y_enc, classes = load_data('hybrid', split_data=False)
         
-        assert X.shape == (10, 537) # 20 + 512 + 5 ratios
+        assert X.shape == (10, 540) # 20 + 512 + 8 ratios
         assert y_enc.shape[0] == 10
