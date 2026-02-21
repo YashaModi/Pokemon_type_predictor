@@ -45,6 +45,16 @@ Performance metrics on the Test Set (20% hold-out):
 - **Input Data Synergy**: By combining computer vision (K-Means/Histograms) with tabular metadata (Base Stats Ratios), the models broke through the "ambiguous color" ceiling. For example, Water and Ice Pokémon often share identical blue palettes, but their distinct biological speed and defense ratios allow them to be separated algorithmically.
 - **Metric Context**: "Exact Match Accuracy" requires predicting the *entire set* of types perfectly. Because many Pokémon are dual-type, hitting an exact match stringently is rare. The F1 micro-score is the anchor metric for evaluating partial correctness.
 
-## 5. Next Steps & Recommendations
-1.  **Natural Language Processing (NLP)**: The final frontier to push the F1 score past 0.80 is integrating Pokédex text descriptions using TF-IDF or lightweight transformers (BERT), as textual descriptions often literally contain the typing ("It spews blazing flames...").
-2.  **Advanced Vision Transformers (ViT)**: To push purely visual classification further, a massive dataset expansion (50,000+ images) alongside a pre-trained ViT would be required to learn complex geometry (wings = Flying) rather than strictly color.
+### Prediction Examples
+The following grid illustrates scenarios where the model leverages the base-stat ratios effectively, alongside cases where it struggles (typically missing secondary typings due to lack of text/lore context).
+
+![Prediction Examples](figures/prediction_examples.png)
+
+## 5. Strategies for Maximizing F1 Score
+To push the F1 Micro-score from the current `~0.506` baseline up to the `0.80+` range, the following advanced methodologies should be implemented:
+
+1. **Natural Language Processing (NLP) / Lore Mining**: The single highest-yield upgrade. Pokémon types are heavily tied to their lore (e.g., "breathes fire", "haunts", "floats"). By extracting TF-IDF or transformer embeddings from the official Pokédex text descriptions and concatenating them with the tabular/visual vectors, the model gains explicit contextual knowledge.
+2. **Bayesian Hyperparameter Optimization**: Replace the manual XGBoost grid search with an automated `Optuna` or `Hyperopt` tuning pipeline to exhaustively optimize tree depth, learning rates, `min_child_weight`, and `gamma` simultaneously.
+3. **Advanced Class Imbalance Techniques**: Ghost, Ice, and Fairy types are notoriously sparse in generation 1-5 data. Implementing `SMOTE` (Synthetic Minority Over-sampling Technique) strictly on the minority class feature vectors during training can drastically improve macro and micro F1 recall.
+4. **Ensemble & Soft Voting**: Instead of relying solely on the regularized XGBoost, build a Soft Voting ensemble that averages the predicted probability distributions of both the XGBoost and the MLP architectures before making the final threshold cut off.
+5. **Architectural CNN Fine-Tuning**: If visual processing is to be pursued further, a pre-trained feature extractor (like `EfficientNetB0`) must be explicitly un-frozen and fine-tuned on the Pokémon dataset to learn shapes (wings = Flying) rather than strictly color palettes.
