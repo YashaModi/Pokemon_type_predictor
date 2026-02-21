@@ -20,13 +20,13 @@ Performance metrics on the Test Set (20% hold-out):
 
 | Metric | XGBoost (RGB + 5 Bio-Ratios) | MLP (Hybrid + 5 Bio-Ratios) [Top-1 Combo] |
 | :--- | :--- | :--- |
-| **Exact Match Accuracy (Full Success)** | 20.36% | 0.61% |
-| **Partial Match Accuracy** | 74.98% | 20.30% |
-| **Top-3 Any Match Accuracy** | N/A | 2.12% |
-| **F1 Score (Micro)** | 0.6720 | 0.1186 |
-| **F1 Score (Macro)** | 0.6725 | 0.1034 |
-| **Precision (Micro)** | 0.60 | 0.10 |
-| **Recall (Micro)** | 0.76 | 0.14 |
+| **Exact Match Accuracy (Full Success)** | 44.55% | 1.91% |
+| **Partial Match Accuracy** | 90.45% | 20.93% |
+| **Top-3 Any Match Accuracy** | N/A | 4.35% |
+| **F1 Score (Micro)** | 0.7425 | 0.1256 |
+| **F1 Score (Macro)** | 0.7331 | 0.0886 |
+| **Precision (Micro)** | 0.67 | 0.10 |
+| **Recall (Micro)** | 0.83 | 0.17 |
 
 \* *For the MLP, F1, Precision, and Recall are calculated based on the single highest-scoring combination (Top-1) to remain comparable to XGBoost.*
 
