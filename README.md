@@ -57,18 +57,9 @@ pokemon_type_predictor/
    ```
 
 5. **Run Notebooks:**
-   The notebooks in `notebooks/` are for exploration and prototyping:
-   - `data-loader.ipynb`: Initial data exploration and verification.
-   - `feature-extraction-pipeline.ipynb`: Development of feature extraction logic.
-   - `baseline-models.ipynb`: Training baseline models for comparison.
-   - `mlp-optimization.ipynb`: Architecture search for MLP.
-   - `hybrid-models.ipynb`: Training the Hybrid MLP (RGB + Histogram).
-   - `modeling-evaluation.ipynb`: Detailed modeling steps.
-   - `inference.ipynb`: Standalone inference testing.
-   - `quantitative-evaluation.ipynb`: Detailed metrics and confusion matrices.
-   - `scenario-testing.ipynb`: Testing model on specific edge cases.
-   - `train_models.ipynb`: The primary, clean model training pipeline.
-
+   The `notebooks/` directory has been officially standardized to a single clean laboratory environment:
+   - `train_models.ipynb`: The primary, interactive pipeline where all data engineering, XGBoost MultiOutput Classifier training, and Penalized Neural Network architecture explorations take place. 
+   
    To use the project code within notebooks, ensure the package is installed in editable mode (`pip install -e .`).
 
 ## Methodology
@@ -85,7 +76,7 @@ pokemon_type_predictor/
     - Concatenation of Top 5 Dominant Colors (Size 20) + Flattened 3D Color Histogram (8x8x8 bins = 512 size) + 8 Biological Ratios/Totals (Size 8).
 - **Topology:** `Input(540) -> Dense(256) -> BN -> Dropout(0.4) -> Dense(128) -> BN -> Dropout(0.3) -> Dense(64) -> BN -> Dropout(0.2) -> Dense(32) -> Dense(18, Sigmoid)`.
 - **Optimizer:** `Adam` with `EarlyStopping` monitoring `val_loss`.
-- **Loss Function:** `FocalLoss` (to handle class imbalance).
+- **Loss Function:** `BinaryCrossEntropy` (with `label_smoothing=0.1` and mathematically computed `class_weights` mapped to mitigate Normal/Water type biases).
 - **Hypothesis:** Deep and narrow architectural pipelines extract the best abstract representations from the 540-feature inputs, but the tiny dataset size (~1,000 images) forces even aggressive Dropout layers to overfit, limiting validation accuracy to ~21%.
 
 ## Sample Results
