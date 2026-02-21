@@ -24,7 +24,7 @@ class PokemonPredictor:
             self.mlb = joblib.load(config.MODELS_DIR / "mlb.pkl")
             
             # Try loading optimized MLP
-            opt_path = config.MODELS_DIR / "mlp_model_optimized.h5"
+            opt_path = config.MODELS_DIR / "mlp_model_optimized.keras"
             if opt_path.exists():
                 self.mlp_model = load_model(opt_path, custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})
                 thresh_path = config.MODELS_DIR / "best_threshold.pkl"

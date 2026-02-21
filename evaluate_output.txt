@@ -35,6 +35,4 @@ weighted avg       0.44      0.88      0.59      1007
 
 
 --- MLP (Hybrid) Evaluation ---
-MLP evaluation failed: Error when deserializing class 'Dense' using config={'name': 'dense', 'trainable': True, 'dtype': 'float32', 'units': 512, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'module': 'keras.initializers', 'class_name': 'GlorotUniform', 'config': {'seed': None}, 'registered_name': None}, 'bias_initializer': {'module': 'keras.initializers', 'class_name': 'Zeros', 'config': {}, 'registered_name': None}, 'kernel_regularizer': None, 'bias_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None, 'quantization_config': None}.
-
-Exception encountered: Unrecognized keyword arguments passed to Dense: {'quantization_config': None}
+Optimized MLP model not found.
