@@ -41,6 +41,13 @@ def load_data(
     else:
         raise ValueError(f"Unknown feature_type: {feature_type}")
 
+    # 1.5 Load and Append Base Stats
+    meta = pd.read_csv(config.PROCESSED_DATA_DIR / "pokemon_metadata.csv")
+    y_labels_temp = pd.read_csv(config.PROCESSED_DATA_DIR / "y_labels.csv")
+    stats_df = y_labels_temp[['id']].merge(meta[['id', 'hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed']], on='id', how='left')
+    stats_features = stats_df[['hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed']].fillna(60) / 255.0
+    X = pd.concat([X, stats_features], axis=1)
+
     # 2. Load and Encode Labels
     y_labels = pd.read_csv(config.PROCESSED_DATA_DIR / "y_labels.csv")
     y_list = []

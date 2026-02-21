@@ -39,6 +39,12 @@ def fetch_pokemon_metadata() -> pd.DataFrame:
             'name': row['name'],
             'type1': row['type_1'],
             'type2': row['type_2'] if pd.notna(row['type_2']) else None,
+            'hp': row['hp'],
+            'attack': row['attack'],
+            'defense': row['defense'],
+            'sp_attack': row['sp_attack'],
+            'sp_defense': row['sp_defense'],
+            'speed': row['speed'],
             'image_url': img_url
         })
 

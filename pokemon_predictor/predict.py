@@ -54,12 +54,13 @@ class PokemonPredictor:
             return False
         return False
 
-    def predict(self, image_path_or_url: str) -> Optional[dict]:
+    def predict(self, image_path_or_url: str, stats: Optional[dict] = None) -> Optional[dict]:
         """
         Runs prediction on a single image.
         
         Args:
             image_path_or_url: Local path or URL to image.
+            stats: Dictionary containing hp, attack, defense, sp_attack, sp_defense, speed.
             
         Returns:
             Dictionary with 'xgboost' and 'mlp' predictions, or None if failed.
@@ -89,12 +90,22 @@ class PokemonPredictor:
             print("Feature extraction failed.")
             return
 
+        if stats is None:
+            print("No stats provided. Defaulting to 60 for all base stats.")
+            stats = {'hp': 60, 'attack': 60, 'defense': 60, 'sp_attack': 60, 'sp_defense': 60, 'speed': 60}
+            
+        stats_array = np.array([
+            stats.get('hp', 60), stats.get('attack', 60), stats.get('defense', 60), 
+            stats.get('sp_attack', 60), stats.get('sp_defense', 60), stats.get('speed', 60)
+        ]) / 255.0
+
         # Inference
-        pred_xgb = self.xgb_model.predict([feat_kmeans])
+        feat_xgb = np.concatenate([feat_kmeans, stats_array])
+        pred_xgb = self.xgb_model.predict([feat_xgb])
         labels_xgb = self.mlb.inverse_transform(pred_xgb)[0]
 
-        # Hybrid model expects concatenated features (RGB + Hist)
-        feat_hybrid = np.concatenate([feat_kmeans, feat_hist])
+        # Hybrid model expects concatenated features (RGB + Hist + Stats)
+        feat_hybrid = np.concatenate([feat_kmeans, feat_hist, stats_array])
         pred_probs_mlp = self.mlp_model.predict(np.array([feat_hybrid]), verbose=0)[0]
         
         from itertools import combinations
@@ -134,17 +145,27 @@ class PokemonPredictor:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Predict Pokemon Type from Image')
     parser.add_argument('image', nargs='?', help='URL or path to image')
+    parser.add_argument('--hp', type=float, default=60.0)
+    parser.add_argument('--attack', type=float, default=60.0)
+    parser.add_argument('--defense', type=float, default=60.0)
+    parser.add_argument('--sp_attack', type=float, default=60.0)
+    parser.add_argument('--sp_defense', type=float, default=60.0)
+    parser.add_argument('--speed', type=float, default=60.0)
     args = parser.parse_args()
 
     predictor = PokemonPredictor()
     
     # Default to Charizard if no argument provided
-    # Using a shorter URL to avoid line length issues if possible, or just keeping it.
     target = args.image if args.image else "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png"
+    
+    stats_dict = {
+        'hp': args.hp, 'attack': args.attack, 'defense': args.defense,
+        'sp_attack': args.sp_attack, 'sp_defense': args.sp_defense, 'speed': args.speed
+    }
     
     print(f"Predicting for: {target}")
     try:
-        results = predictor.predict(target)
+        results = predictor.predict(target, stats=stats_dict)
         if results:
             print("\nPredictions:")
             print(f"  XGBoost: {results['xgboost']}")
