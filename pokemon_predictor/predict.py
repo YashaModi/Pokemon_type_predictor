@@ -34,7 +34,7 @@ class PokemonPredictor:
                     self.mlp_threshold = joblib.load(thresh_path)
                     print(f"Loaded optimized MLP with threshold: {self.mlp_threshold:.2f}")
             else:
-                self.mlp_model = load_model(config.MODELS_DIR / "mlp_model_clean.h5", custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})
+                self.mlp_model = load_model(config.MODELS_DIR / "mlp_model_optimized.h5", custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})
                 print("Loaded baseline MLP.")
                 
         except Exception as e:
