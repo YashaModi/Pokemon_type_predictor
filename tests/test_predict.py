@@ -26,9 +26,9 @@ def test_predict_returns_correct_format(mock_hist, mock_kmeans, mock_load, dummy
     
     predictor = PokemonPredictor()
     
-    # Inject XGBoost mock
+    # Inject XGBoost mock (MultiOutputClassifier returns list of arrays for predict_proba)
     predictor.xgb_model = MagicMock()
-    predictor.xgb_model.predict.return_value = np.array([[1, 0, 0]])
+    predictor.xgb_model.predict_proba.return_value = [np.array([[0.1, 0.9]]), np.array([[0.8, 0.2]]), np.array([[0.9, 0.1]])]
     
     # Inject MLB mock
     predictor.mlb = MagicMock()

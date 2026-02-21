@@ -26,13 +26,15 @@ def verify_structure():
     print("Verifying Notebooks...")
     notebooks = [
         "baseline-models.ipynb",
-        "xgboost-tuning.ipynb",
+        "data-loader.ipynb",
         "feature-extraction-pipeline.ipynb",
-        "mlp-optimization.ipynb",
         "hybrid-models.ipynb",
-        "cnn-transfer-learning.ipynb",
+        "inference.ipynb",
+        "mlp-optimization.ipynb",
+        "modeling-evaluation.ipynb",
         "quantitative-evaluation.ipynb",
-        "scenario-testing.ipynb"
+        "scenario-testing.ipynb",
+        "train_models.ipynb"
     ]
     for nb in notebooks:
         if not (Path("notebooks") / nb).exists():

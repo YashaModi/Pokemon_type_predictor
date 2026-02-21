@@ -77,10 +77,12 @@ pokemon_type_predictor/
 
 ## Methodology
 
-### Track A: XGBoost
-- **Input:** Top 5 dominant colors (L*a*b* space converted from RGB) and their percentage coverage. Flattened vector of size 20 (5 colors * 4 features each).
+### Track A: XGBoost (Baseline Hybrid)
+- **Input:** **Hybrid Feature Vector** (Size: 25).
+    - Top 5 dominant colors (L*a*b* space converted from RGB) and their percentage coverage (Size 20).
+    - 5 Biological Ratios (Physical/Special, Bulk, Glass Cannon, Physical Pillar, Sweeper) calculated from base stats (Size 5).
 - **Pipeline:** `MultiOutputClassifier(XGBClassifier)`.
-- **Hypothesis:** Interpretable, fast, and robust for limited data. Good at capturing dominant color themes.
+- **Hypothesis:** Interpretable, fast, and highly regularized. Uses combinations of strong domain stats and basic colors to identify types, capped to Top-2 probabilities max.
 
 ### Track B: MLP (Neural Network)
 - **Input:** **Hybrid Feature Vector** (Size: 532).
@@ -99,7 +101,7 @@ Here are current inputs and outputs from the trained models:
 | Pokemon | Image | XGBoost Prediction | MLP Prediction (Top-3 Combinations) |
 | :---: | :---: | :--- | :--- |
 | **Charizard** (#6) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" width="100"> | `('Fire', 'Flying')` | `[('Fire', 'Flying'), ('Fire',), ('Flying',)]` |
-| **Pikachu** (#25) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" width="100"> | `('Electric')` | `[('Electric',), ('Electric', 'Fairy'), ('Fairy',)]` |
+| **Pikachu** (#25) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" width="100"> | `('Electric',)` | `[('Electric',), ('Electric', 'Fairy'), ('Fairy',)]` |
 | **Bulbasaur** (#1) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" width="100"> | `('Grass', 'Poison')` | `[('Grass', 'Poison'), ('Grass',), ('Poison',)]` |
 
 *Note: The MLP model now generates valid 1-type or 2-type combinations from its highest-confidence predictions, scores them by combined probability, and outputs the top 3 most likely valid typings.*
