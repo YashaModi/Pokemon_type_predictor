@@ -27,7 +27,16 @@ def generate_examples():
         if not Path(img_path).exists():
             continue
             
-        pred = predictor.predict(img_path)
+        stats = {
+            'hp': row['hp'],
+            'attack': row['attack'],
+            'defense': row['defense'],
+            'sp_attack': row['sp_attack'],
+            'sp_defense': row['sp_defense'],
+            'speed': row['speed']
+        }
+        
+        pred = predictor.predict(img_path, stats=stats)
         if not pred:
             continue
             
