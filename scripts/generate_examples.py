@@ -16,8 +16,8 @@ def generate_examples():
     xgb_examples = []
     mlp_examples = []
     
-    # Shuffle predictably
-    for idx, row in df_meta.sample(frac=1, random_state=42).iterrows():
+    # Shuffle randomly
+    for idx, row in df_meta.sample(frac=1, random_state=None).iterrows():
         if len(xgb_examples) >= 8 and len(mlp_examples) >= 8:
             break
             
