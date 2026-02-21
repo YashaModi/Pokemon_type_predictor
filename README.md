@@ -20,15 +20,13 @@ pokemon_type_predictor/
 ├── pokemon_predictor  <- Source code package
 │   ├── __init__.py    <- Makes pokemon_predictor a Python module
 │   ├── config.py      <- Project configuration
+│   ├── data_utils.py  <- Data loading and feature extraction
 │   ├── download.py    <- Data acquisition scripts
-│   ├── features.py    <- Feature extraction logic
-│   ├── images.py      <- Image handling utilities
-│   ├── losses.py      <- Custom loss functions (FocalLoss)
-│   ├── plots.py       <- Visualization utilities
+│   ├── evaluate.py    <- Quantitative evaluation suite
+│   ├── model_utils.py <- Custom loss functions and model helpers
 │   ├── predict.py     <- XGBoost/MLP Inference
-│   ├── predict_cnn.py <- CNN Inference
-│   ├── tabular.py     <- Tabular data loading
-│   └── train.py       <- Model training script
+│   └── visualization.py <- Visualization utilities
+├── scripts            <- Top-level scripts (e.g., generate_examples.py)
 └── verify_project.py  <- Project verification script
 ```
 
@@ -56,22 +54,20 @@ pokemon_type_predictor/
    ```bash
    # XGBoost/MLP
    python -m pokemon_predictor.predict <path_to_image>
-   
-   # CNN
-   python -m pokemon_predictor.predict_cnn <path_to_image>
    ```
 
 5. **Run Notebooks:**
    The notebooks in `notebooks/` are for exploration and prototyping:
    - `data-loader.ipynb`: Initial data exploration and verification.
-   - `feature-extraction.ipynb`: Development of feature extraction logic.
+   - `feature-extraction-pipeline.ipynb`: Development of feature extraction logic.
    - `baseline-models.ipynb`: Training baseline models for comparison.
-   - `xgboost-tuning.ipynb`: Hyperparameter optimization for XGBoost.
    - `mlp-optimization.ipynb`: Architecture search for MLP.
    - `hybrid-models.ipynb`: Training the Hybrid MLP (RGB + Histogram).
-   - `cnn-transfer-learning.ipynb`: Experiments with MobileNetV2.
+   - `modeling-evaluation.ipynb`: Detailed modeling steps.
+   - `inference.ipynb`: Standalone inference testing.
    - `quantitative-evaluation.ipynb`: Detailed metrics and confusion matrices.
    - `scenario-testing.ipynb`: Testing model on specific edge cases.
+   - `train_models.ipynb`: The primary, clean model training pipeline.
 
    To use the project code within notebooks, ensure the package is installed in editable mode (`pip install -e .`).
 
@@ -85,14 +81,12 @@ pokemon_type_predictor/
 - **Hypothesis:** Interpretable, fast, and highly regularized. Uses combinations of strong domain stats and basic colors to identify types, capped to Top-2 probabilities max.
 
 ### Track B: MLP (Neural Network)
-- **Input:** **Hybrid Feature Vector** (Size: 532).
-    - Concatenation of Top 5 Dominant Colors (Size 20) + Flattened 3D Color Histogram (8x8x8 bins = 512 size).
+- **Input:** **Hybrid Feature Vector** (Size: 537).
+    - Concatenation of Top 5 Dominant Colors (Size 20) + Flattened 3D Color Histogram (8x8x8 bins = 512 size) + 5 Biological Ratios (Size 5).
 - **Architecture:** 
-    - `Input(532) -> Dense(512, ReLU) -> BN -> Dropout(0.4) -> Dense(256, ReLU) -> BN -> Dropout(0.3) -> Dense(18, Sigmoid)`.
+    - `Input(537) -> Dense(512, ReLU) -> BN -> Dropout(0.4) -> Dense(256, ReLU) -> BN -> Dropout(0.3) -> Dense(18, Sigmoid)`.
 - **Loss Function:** `FocalLoss` (to handle class imbalance).
-- **Hypothesis:** Combining dominant colors with detailed color distribution provides the richest signal for prediction.
-
-### Status: Experimental (code available in `predict_cnn.py` and notebooks).
+- **Hypothesis:** Combining dominant colors with detailed color distribution and biological stats provides the richest signal for prediction.
 
 ## Sample Results
 
