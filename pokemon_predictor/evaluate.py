@@ -23,7 +23,15 @@ def evaluate_models():
         f1_micro = f1_score(y_test, y_pred, average='micro')
         f1_macro = f1_score(y_test, y_pred, average='macro')
         
-        print(f"Accuracy (Subset): {acc:.4f}")
+        # Calculate Partial Accuracy
+        partial_matches = 0
+        for true, pred in zip(y_test, y_pred):
+            if np.sum(np.logical_and(true, pred)) > 0:
+                partial_matches += 1
+        acc_partial = partial_matches / len(y_test)
+        
+        print(f"Exact Match Accuracy: {acc:.4f}")
+        print(f"Partial Match Accuracy: {acc_partial:.4f}")
         print(f"F1 Score (Micro): {f1_micro:.4f}")
         print(f"F1 Score (Macro): {f1_macro:.4f}")
         print("\nClassification Report:")
@@ -96,10 +104,19 @@ def evaluate_models():
         
         acc_top1 = accuracy_score(y_test, y_pred_top1)
         acc_top3 = y_pred_top3_any_match / len(y_test)
+        
+        # Calculate Partial Accuracy for MLP Top-1
+        partial_matches_mlp = 0
+        for true, pred in zip(y_test, y_pred_top1):
+            if np.sum(np.logical_and(true, pred)) > 0:
+                partial_matches_mlp += 1
+        acc_partial_mlp = partial_matches_mlp / len(y_test)
+        
         f1_micro = f1_score(y_test, y_pred_top1, average='micro')
         f1_macro = f1_score(y_test, y_pred_top1, average='macro')
         
-        print(f"Top-1 Accuracy (Exact Match): {acc_top1:.4f}")
+        print(f"Top-1 Exact Match Accuracy: {acc_top1:.4f}")
+        print(f"Top-1 Partial Match Accuracy: {acc_partial_mlp:.4f}")
         print(f"Top-3 Accuracy (Any Exact Match): {acc_top3:.4f}")
         print(f"Top-1 F1 Score (Micro): {f1_micro:.4f}")
         print(f"Top-1 F1 Score (Macro): {f1_macro:.4f}")

@@ -72,9 +72,17 @@ def generate_examples():
         true_set = set(item['true'].split('+'))
         pred_set = set(item['pred'].split('+')) if item['pred'] != "None" else set()
         
-        is_correct = (true_set == pred_set)
-        color = 'green' if is_correct else 'red'
-        status = "CORRECT" if is_correct else "INCORRECT"
+        intersection = true_set.intersection(pred_set)
+        
+        if true_set == pred_set:
+            color = 'green'
+            status = "FULL SUCCESS"
+        elif len(intersection) > 0:
+            color = 'goldenrod' # Darker yellow for true visibility on white backgrounds
+            status = "PARTIAL"
+        else:
+            color = 'red'
+            status = "FALSE"
         
         ax.set_title(f"{prefix} {item['name'].capitalize()}\nTrue: {item['true']}\nPred: {item['pred']}\n[{status}]", color=color, fontweight='bold', fontsize=12)
         ax.axis('off')

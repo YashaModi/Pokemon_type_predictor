@@ -113,8 +113,19 @@ class PokemonPredictor:
 
         # Inference (RGB + Ratios)
         feat_xgb = np.concatenate([feat_kmeans, scaled_ratios])
-        pred_xgb = self.xgb_model.predict([feat_xgb])
-        labels_xgb = self.mlb.inverse_transform(pred_xgb)[0]
+        pred_probs_xgb = self.xgb_model.predict_proba([feat_xgb])
+        
+        # XGBoost predict_proba for MultiOutputClassifier returns a list of arrays (one per class)
+        # Each array has shape (n_samples, 2) where column 1 is the probability of class presence.
+        probs_xgb = np.array([p[:, 1] for p in pred_probs_xgb]).T[0]
+        
+        pred_xgb = (probs_xgb >= 0.5).astype(int)
+        
+        if np.sum(pred_xgb) == 0:
+            # Fallback to argmax if all probabilities are < 0.5
+            pred_xgb[np.argmax(probs_xgb)] = 1
+            
+        labels_xgb = self.mlb.inverse_transform(np.array([pred_xgb]))[0]
 
         # Hybrid model expects concatenated features (RGB + Hist + Ratios)
         feat_hybrid = np.concatenate([feat_kmeans, feat_hist, scaled_ratios])
