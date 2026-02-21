@@ -28,14 +28,14 @@ class PokemonPredictor:
             # Try loading optimized MLP
             opt_path = config.MODELS_DIR / "mlp_model_optimized.h5"
             if opt_path.exists():
-                self.mlp_model = load_model(opt_path, custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})
+                self.mlp_model = load_model(opt_path, compile=False)
                 thresh_path = config.MODELS_DIR / "best_threshold.pkl"
                 if thresh_path.exists():
                     self.mlp_threshold = joblib.load(thresh_path)
                     print(f"Loaded optimized MLP with threshold: {self.mlp_threshold:.2f}")
             else:
-                self.mlp_model = load_model(config.MODELS_DIR / "mlp_model_optimized.h5", custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})
-                print("Loaded baseline MLP.")
+                self.mlp_model = load_model(config.MODELS_DIR / "mlp_model_clean.h5", compile=False)
+                print("Loaded Penalized MLP Baseline.")
                 
         except Exception as e:
             print(f"Error loading models: {e}")

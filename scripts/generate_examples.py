@@ -75,25 +75,42 @@ def generate_examples():
             
         img = cv2.imread(item['img_path'])
         if img is not None:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            ax.imshow(img)
+            img_bgr = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            ax.imshow(img_bgr)
         
-        true_set = set(item['true'].split('+'))
-        pred_set = set(item['pred'].split('+')) if item['pred'] != "None" else set()
+        true_types = item['true'].split('+')
         
-        intersection = true_set.intersection(pred_set)
+        # Always run predictions
+        pred = predictor.predict(item['img_path'])
+        pred_xgb = pred["xgboost"]
         
-        if true_set == pred_set:
-            color = 'green'
-            status = "FULL SUCCESS"
-        elif len(intersection) > 0:
-            color = 'goldenrod' # Darker yellow for true visibility on white backgrounds
-            status = "PARTIAL"
+        # Format prediction text (XGBoost Only)
+        true_text = f"True: {', '.join(true_types)}"
+        xgb_text = f"XGB: {', '.join(pred_xgb)}"
+        
+        # Add a subtle dark backing panel for text readability
+        overlay = img_bgr.copy()
+        cv2.rectangle(overlay, (0, 0), (224, 60), (0, 0, 0), -1)
+        alpha = 0.6
+        img_bgr = cv2.addWeighted(overlay, alpha, img_bgr, 1 - alpha, 0)
+        
+        # Determine exact match color for XGBoost
+        # Sort both tuples to ensure order doesn't fail the match
+        pred_sorted = tuple(sorted(pred_xgb))
+        true_sorted = tuple(sorted(true_types))
+        
+        if pred_sorted == true_sorted:
+            color_xgb = (0, 255, 0) # Green for perfect match
+        elif set(pred_xgb).intersection(set(true_types)):
+            color_xgb = (0, 255, 255) # Yellow for partial match
         else:
-            color = 'red'
-            status = "FALSE"
+            color_xgb = (0, 0, 255) # Red for complete miss
+            
+        cv2.putText(img_bgr, true_text, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1)
+        cv2.putText(img_bgr, xgb_text, (5, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.45, color_xgb, 1)
         
-        ax.set_title(f"{prefix} {item['name'].capitalize()}\nTrue: {item['true']}\nPred: {item['pred']}\n[{status}]", color=color, fontweight='bold', fontsize=12)
+        ax.imshow(img_bgr) # Display the image with text overlay
+        ax.set_title(f"{prefix} {item['name'].capitalize()}", fontsize=12) # Only name and prefix in title
         ax.axis('off')
 
     plt.tight_layout()
