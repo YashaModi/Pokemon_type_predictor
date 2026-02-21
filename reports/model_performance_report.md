@@ -20,13 +20,13 @@ Performance metrics on the Test Set (20% hold-out):
 
 | Metric | XGBoost (RGB + 5 Bio-Ratios) | MLP (Hybrid + 5 Bio-Ratios) [Top-1 Combo] |
 | :--- | :--- | :--- |
-| **Exact Match Accuracy (Full Success)** | 24.85% | 0.61% |
-| **Partial Match Accuracy** | 45.30% | 20.30% |
+| **Exact Match Accuracy (Full Success)** | 20.36% | 0.61% |
+| **Partial Match Accuracy** | 74.98% | 20.30% |
 | **Top-3 Any Match Accuracy** | N/A | 2.12% |
-| **F1 Score (Micro)** | 0.5062 | 0.1186 |
-| **F1 Score (Macro)** | 0.4997 | 0.1034 |
-| **Precision (Micro)** | 0.95 | 0.10 |
-| **Recall (Micro)** | 0.35 | 0.14 |
+| **F1 Score (Micro)** | 0.6720 | 0.1186 |
+| **F1 Score (Macro)** | 0.6725 | 0.1034 |
+| **Precision (Micro)** | 0.60 | 0.10 |
+| **Recall (Micro)** | 0.76 | 0.14 |
 
 \* *For the MLP, F1, Precision, and Recall are calculated based on the single highest-scoring combination (Top-1) to remain comparable to XGBoost.*
 
@@ -47,7 +47,7 @@ Throughout the project lifecycle, the XGBoost baseline underwent several aggress
 1. **Initial Baseline (Image Only)**: The original model was trained purely on K-Means extracted colors (RGB). It struggled to differentiate ambiguous colors (e.g., Water vs Ice) and frequently failed on dual-typings.
 2. **Biological Ratios Integration**: Five custom biological ratios (Physical/Special, Bulk, Glass Cannon, Physical Pillar, Sweeper) were engineered from the Pokémon's base stats. Concatenating these tabular features with the visual RGB features broke the "ambiguous color" ceiling, resulting in a massive 10x multiplier to the F1 score.
 3. **Hyperparameter Regularization**: To prevent the trees from mathematically memorizing the powerful biological ratios (which ruins test-set generalization), strict regularization was introduced (`colsample_bytree = 0.75`, `max_depth = 5`).
-4. **Thresholding Fallbacks**: Originally, XGBoost used a strict `>0.50` probability cutoff. If uncertain, it outputted empty ("None") predictions. The inference script (`predict.py`) was upgraded to fall back to an `argmax` selection of the highest confidence probabilities when uncertain, propelling the Partial Match Accuracy to 45.30%.
+4. **Thresholding Fallbacks & Max-2 Constraints**: Originally, XGBoost used a strict `>0.50` probability cutoff, allowing it to output blank arrays or 3+ arrays. The inference scripts were upgraded to enforce Pokémon domain rules: XGBoost now falls back to `argmax` when uncertain, and strictly caps its output to the `top-2` highest probabilities, propelling the F1 score to ~0.672 and Partial Match Accuracy to ~75%.
 
 ## 5. Visual Analysis & Observations
 - **Input Data Synergy**: By combining computer vision (K-Means/Histograms) with tabular metadata (Base Stats Ratios), the models broke through the "ambiguous color" ceiling. For example, Water and Ice Pokémon often share identical blue palettes, but their distinct biological speed and defense ratios allow them to be separated algorithmically.
@@ -59,7 +59,7 @@ The following grid illustrates scenarios where the model leverages the base-stat
 ![Prediction Examples](figures/prediction_examples.png)
 
 ## 5. Strategies for Maximizing F1 Score
-To push the F1 Micro-score from the current `~0.506` baseline up to the `0.80+` range, the following advanced methodologies should be implemented:
+To push the F1 Micro-score from the current `~0.672` baseline up to the `0.85+` range, the following advanced methodologies should be implemented:
 
 1. **Natural Language Processing (NLP) / Lore Mining**: The single highest-yield upgrade. Pokémon types are heavily tied to their lore (e.g., "breathes fire", "haunts", "floats"). By extracting TF-IDF or transformer embeddings from the official Pokédex text descriptions and concatenating them with the tabular/visual vectors, the model gains explicit contextual knowledge.
 2. **Ensemble & Soft Voting**: Instead of relying solely on the regularized XGBoost, build a Soft Voting ensemble that averages the predicted probability distributions of both the XGBoost and the MLP architectures before making the final threshold cut off.

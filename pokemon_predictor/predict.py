@@ -119,11 +119,18 @@ class PokemonPredictor:
         # Each array has shape (n_samples, 2) where column 1 is the probability of class presence.
         probs_xgb = np.array([p[:, 1] for p in pred_probs_xgb]).T[0]
         
-        pred_xgb = (probs_xgb >= 0.5).astype(int)
+        pred_xgb = np.zeros_like(probs_xgb, dtype=int)
+        valid_indices = np.where(probs_xgb >= 0.5)[0]
         
-        if np.sum(pred_xgb) == 0:
+        if len(valid_indices) == 0:
             # Fallback to argmax if all probabilities are < 0.5
             pred_xgb[np.argmax(probs_xgb)] = 1
+        elif len(valid_indices) > 2:
+            # Pokémon can have at most 2 types. Take top 2 probabilities.
+            top_2_indices = np.argsort(probs_xgb)[-2:]
+            pred_xgb[top_2_indices] = 1
+        else:
+            pred_xgb[valid_indices] = 1
             
         labels_xgb = self.mlb.inverse_transform(np.array([pred_xgb]))[0]
 

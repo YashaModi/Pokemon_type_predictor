@@ -17,7 +17,21 @@ def evaluate_models():
         X_train, X_test, y_train, y_test, classes = load_data('rgb', split_data=True)
         xgb_model = joblib.load(config.MODELS_DIR / "xgboost_model.pkl")
         
-        y_pred = xgb_model.predict(X_test)
+        # XGBoost MultiOutput classifier outputs list of (n_samples, 2) arrays
+        pred_probs_xgb = xgb_model.predict_proba(X_test)
+        probs_xgb_all = np.array([p[:, 1] for p in pred_probs_xgb]).T
+        
+        y_pred = np.zeros_like(probs_xgb_all, dtype=int)
+        for i in range(len(probs_xgb_all)):
+            probs = probs_xgb_all[i]
+            valid_indices = np.where(probs >= 0.5)[0]
+            if len(valid_indices) == 0:
+                y_pred[i, np.argmax(probs)] = 1
+            elif len(valid_indices) > 2:
+                top_2_indices = np.argsort(probs)[-2:]
+                y_pred[i, top_2_indices] = 1
+            else:
+                y_pred[i, valid_indices] = 1
         
         acc = accuracy_score(y_test, y_pred)
         f1_micro = f1_score(y_test, y_pred, average='micro')
