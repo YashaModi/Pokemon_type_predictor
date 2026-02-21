@@ -74,17 +74,17 @@ pokemon_type_predictor/
 ## Methodology
 
 ### Track A: XGBoost (Baseline Hybrid)
-- **Input:** **Hybrid Feature Vector** (Size: 25).
+- **Input:** **Hybrid Feature Vector** (Size: 28).
     - Top 5 dominant colors (L*a*b* space converted from RGB) and their percentage coverage (Size 20).
-    - 5 Biological Ratios (Physical/Special, Bulk, Glass Cannon, Physical Pillar, Sweeper) calculated from base stats (Size 5).
+    - 8 Biological Ratios and Totals (Physical/Special, Bulk, Glass Cannon, Physical Pillar, Sweeper, Total Stats, Physical Total, Special Total) calculated from base stats (Size 8).
 - **Pipeline:** `MultiOutputClassifier(XGBClassifier)`.
 - **Hypothesis:** Interpretable, fast, and highly regularized. Uses combinations of strong domain stats and basic colors to identify types, capped to Top-2 probabilities max.
 
 ### Track B: MLP (Neural Network)
-- **Input:** **Hybrid Feature Vector** (Size: 537).
-    - Concatenation of Top 5 Dominant Colors (Size 20) + Flattened 3D Color Histogram (8x8x8 bins = 512 size) + 5 Biological Ratios (Size 5).
+- **Input:** **Hybrid Feature Vector** (Size: 540).
+    - Concatenation of Top 5 Dominant Colors (Size 20) + Flattened 3D Color Histogram (8x8x8 bins = 512 size) + 8 Biological Ratios/Totals (Size 8).
 - **Architecture:** 
-    - `Input(537) -> Dense(512, ReLU) -> BN -> Dropout(0.4) -> Dense(256, ReLU) -> BN -> Dropout(0.3) -> Dense(18, Sigmoid)`.
+    - `Input(540) -> Dense(512, ReLU) -> BN -> Dropout(0.4) -> Dense(256, ReLU) -> BN -> Dropout(0.3) -> Dense(18, Sigmoid)`.
 - **Loss Function:** `FocalLoss` (to handle class imbalance).
 - **Hypothesis:** Combining dominant colors with detailed color distribution and biological stats provides the richest signal for prediction.
 

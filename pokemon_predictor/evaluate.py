@@ -59,9 +59,9 @@ def evaluate_models():
     try:
         X_train, X_test, y_train, y_test, classes = load_data('hybrid', split_data=True)
         
-        mlp_path = config.MODELS_DIR / "mlp_model_optimized.keras"
+        mlp_path = config.MODELS_DIR / "mlp_model.h5"
         if not mlp_path.exists():
-            print("Optimized MLP model not found.")
+            print("MLP model not found at specified path.")
             return
 
         mlp_model = load_model(mlp_path, custom_objects={'FocalLoss': FocalLoss, 'focal_loss': FocalLoss})

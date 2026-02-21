@@ -106,9 +106,14 @@ class PokemonPredictor:
         phys_pillar = stat_array['defense'] / (stat_array['speed'] + epsilon)
         sweeper = stat_array['speed'] / (stat_array['hp'] + epsilon)
         
-        ratios_array = np.array([phys_spec, bulk, glass_cannon, phys_pillar, sweeper])
-        # Scale the 5 ratios identically to the training set using the fitted RobustScaler
-        ratios_df = pd.DataFrame([ratios_array], columns=['phys_spec', 'bulk', 'glass_cannon', 'phys_pillar', 'sweeper'])
+        # Absolute summations
+        total_stats = stat_array['hp'] + stat_array['attack'] + stat_array['defense'] + stat_array['sp_attack'] + stat_array['sp_defense'] + stat_array['speed']
+        phys = stat_array['attack'] + stat_array['defense']
+        special = stat_array['sp_attack'] + stat_array['sp_defense']
+        
+        ratios_array = np.array([phys_spec, bulk, glass_cannon, phys_pillar, sweeper, total_stats, phys, special])
+        # Scale the 8 biological indicators identically to the training set using the fitted RobustScaler
+        ratios_df = pd.DataFrame([ratios_array], columns=['phys_spec', 'bulk', 'glass_cannon', 'phys_pillar', 'sweeper', 'total_stats', 'phys', 'special'])
         scaled_ratios = self.scaler.transform(ratios_df)[0]
 
         # Inference (RGB + Ratios)

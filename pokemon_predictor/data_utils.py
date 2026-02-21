@@ -144,6 +144,11 @@ def load_data(
     ratios['phys_pillar'] = stats_raw['defense'] / (stats_raw['speed'] + epsilon)
     ratios['sweeper'] = stats_raw['speed'] / (stats_raw['hp'] + epsilon)
     
+    # Absolute summations
+    ratios['total_stats'] = stats_raw['hp'] + stats_raw['attack'] + stats_raw['defense'] + stats_raw['sp_attack'] + stats_raw['sp_defense'] + stats_raw['speed']
+    ratios['phys'] = stats_raw['attack'] + stats_raw['defense']
+    ratios['special'] = stats_raw['sp_attack'] + stats_raw['sp_defense']
+    
     # Scale ratios with RobustScaler to handle extreme outliers
     from sklearn.preprocessing import RobustScaler
     import joblib
