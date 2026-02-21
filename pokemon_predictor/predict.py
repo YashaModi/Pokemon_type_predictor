@@ -22,6 +22,7 @@ class PokemonPredictor:
         try:
             self.xgb_model = joblib.load(config.MODELS_DIR / "xgboost_model.pkl")
             self.mlb = joblib.load(config.MODELS_DIR / "mlb.pkl")
+            self.scaler = joblib.load(config.MODELS_DIR / "robust_scaler.pkl")
             
             # Try loading optimized MLP
             opt_path = config.MODELS_DIR / "mlp_model_optimized.keras"
@@ -104,12 +105,10 @@ class PokemonPredictor:
         phys_pillar = stat_array['defense'] / (stat_array['speed'] + epsilon)
         sweeper = stat_array['speed'] / (stat_array['hp'] + epsilon)
         
-        # Scale the 5 ratios identically using standard zero-mean normalization to emulate RobustScaler ranges
-        # (Since we are doing single-inference and don't dump the PCA scaler, we approximate or just pass raw if scale drift is acceptable. Wait, MLP will break if unscaled.)
-        # Let's apply an approximation mapping based on generic stat distributions.
         ratios_array = np.array([phys_spec, bulk, glass_cannon, phys_pillar, sweeper])
-        # A simple clip-and-norm scaling to mimic the robust scaler:
-        scaled_ratios = np.clip((ratios_array - ratios_array.mean()) / (ratios_array.std() + epsilon), -3.0, 3.0)
+        # Scale the 5 ratios identically to the training set using the fitted RobustScaler
+        ratios_df = pd.DataFrame([ratios_array], columns=['phys_spec', 'bulk', 'glass_cannon', 'phys_pillar', 'sweeper'])
+        scaled_ratios = self.scaler.transform(ratios_df)[0]
 
         # Inference (RGB + Ratios)
         feat_xgb = np.concatenate([feat_kmeans, scaled_ratios])

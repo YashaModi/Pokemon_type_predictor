@@ -144,10 +144,12 @@ def load_data(
     ratios['phys_pillar'] = stats_raw['defense'] / (stats_raw['speed'] + epsilon)
     ratios['sweeper'] = stats_raw['speed'] / (stats_raw['hp'] + epsilon)
     
-    # Scale ratios with RobustScaler to handle extreme outliers (like Shuckle's Defense)
+    # Scale ratios with RobustScaler to handle extreme outliers
     from sklearn.preprocessing import RobustScaler
+    import joblib
     scaler = RobustScaler()
     scaled_ratios = pd.DataFrame(scaler.fit_transform(ratios), columns=ratios.columns)
+    joblib.dump(scaler, config.MODELS_DIR / "robust_scaler.pkl")
     
     X = pd.concat([X, scaled_ratios], axis=1)
 
