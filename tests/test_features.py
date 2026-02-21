@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 import cv2
-from pokemon_predictor.features import extract_kmeans_features, extract_histogram_features
+from pokemon_predictor.data_utils import extract_kmeans_features, extract_histogram_features
 
 @pytest.fixture
 def dummy_image(tmp_path):

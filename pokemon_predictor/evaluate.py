@@ -5,8 +5,8 @@ from sklearn.metrics import accuracy_score, classification_report, f1_score
 from tensorflow.keras.models import load_model
 
 from pokemon_predictor import config
-from pokemon_predictor.tabular import load_data
-from pokemon_predictor.losses import FocalLoss
+from pokemon_predictor.data_utils import load_data
+from pokemon_predictor.model_utils import FocalLoss
 
 def evaluate_models():
     print("=== MODEL EVALUATION REPORT ===")

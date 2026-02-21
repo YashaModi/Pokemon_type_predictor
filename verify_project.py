@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import cv2
 from pokemon_predictor import config
-from pokemon_predictor.tabular import load_data, load_metadata
+from pokemon_predictor.data_utils import load_data, load_metadata
 
 def verify_structure():
     print("Verifying Directory Structure...")

@@ -1,2 +1,0 @@
-Best F1: 0.0929
-Best Params: {'estimator__subsample': 0.9, 'estimator__n_estimators': 100, 'estimator__max_depth': 5, 'estimator__learning_rate': 0.2, 'estimator__gamma': 0.1, 'estimator__colsample_bytree': 0.7}

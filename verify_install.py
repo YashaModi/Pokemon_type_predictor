@@ -2,7 +2,7 @@ import sys
 try:
     import pokemon_predictor
     import pokemon_predictor.config
-    import pokemon_predictor.features
+    import pokemon_predictor.data_utils
     from pokemon_predictor.download import fetch_pokemon_metadata
     import tensorflow as tf
     import xgboost as xgb

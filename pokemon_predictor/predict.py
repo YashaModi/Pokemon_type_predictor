@@ -7,8 +7,8 @@ from typing import Optional, Dict, Any
 from tensorflow.keras.models import load_model
 
 from pokemon_predictor import config
-from pokemon_predictor.features import extract_kmeans_features, extract_histogram_features
-from pokemon_predictor.losses import FocalLoss
+from pokemon_predictor.data_utils import extract_kmeans_features, extract_histogram_features
+from pokemon_predictor.model_utils import FocalLoss
 
 
 class PokemonPredictor:

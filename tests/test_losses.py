@@ -1,6 +1,6 @@
 import pytest
 import tensorflow as tf
-from pokemon_predictor.losses import FocalLoss
+from pokemon_predictor.model_utils import FocalLoss
 
 def test_focal_loss():
     y_true = tf.constant([[1.0, 0.0], [0.0, 1.0]], dtype=tf.float32)

@@ -1,3 +1,0 @@
-Advanced Tuning Results
-Test F1: 0.1240
-Best Params: {'estimator__subsample': 0.9, 'estimator__reg_lambda': 1, 'estimator__reg_alpha': 0, 'estimator__n_estimators': 1000, 'estimator__min_child_weight': 5, 'estimator__max_depth': 6, 'estimator__learning_rate': 0.3, 'estimator__gamma': 0, 'estimator__colsample_bytree': 0.7}
