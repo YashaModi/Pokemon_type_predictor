@@ -12,7 +12,7 @@ def mock_csvs(tmp_path):
     
     # Mock y_labels.csv
     y_labels = pd.DataFrame({
-        'pokedex_number': range(1, 11),
+        'id': range(1, 11),
         'type1': ['Fire'] * 5 + ['Water'] * 5,
         'type2': [None] * 10
     })

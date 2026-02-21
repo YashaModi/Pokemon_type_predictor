@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 class FocalLoss(tf.keras.losses.Loss):
-    def __init__(self, gamma=2.0, alpha=0.25, reduction=tf.keras.losses.Reduction.AUTO, name='focal_loss'):
+    def __init__(self, gamma=2.0, alpha=0.25, reduction="sum_over_batch_size", name='focal_loss'):
         super(FocalLoss, self).__init__(reduction=reduction, name=name)
         self.gamma = gamma
         self.alpha = alpha
