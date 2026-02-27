@@ -89,7 +89,36 @@ pokemon_type_predictor/
 | **Partial Match Accuracy** | 90.45% | 21.36% |
 | **F1 Score (Micro)** | 0.7425 | 0.1246 |
 
+<p align="center">
+  <img src="reports/figures/model_comparison.png" alt="Model Comparison Chart" width="800"/>
+</p>
+
 **Conclusion:** The purely tabular XGBoost model heavily outperforms the Deep Neural Network. The MLP struggles to overcome the ~1,000-image dataset barrier, leading to structural overfitting regardless of heavy L2 regularization, label smoothing, and dynamic class weights. However, XGBoost's mathematical tree-splitting effortlessly maximizes the dataset size to generalize successfully!
+
+### Per-Class F1 Score (XGBoost)
+
+Not all Pokémon types are created equal. By breaking down the F1 score across all 18 typings for the XGBoost pipeline, we can observe the limitations of purely visual and biological predictions.
+
+<p align="center">
+  <img src="reports/figures/xgboost_per_class_f1.png" alt="XGBoost Per-Class F1 Score" width="800"/>
+</p>
+
+-   **High Performers:** Types intrinsically tied to vivid, single-color palettes (e.g., Grass, Fire, Water, Electric, Bug) achieve extremely high F1 scores (>0.70). These types are structurally unambiguous.
+-   **Low Performers:** Abstract, lore-based types (e.g., Dragon, Ghost, Dark, Flying) suffer drastically. A "Dragon" can be orange (Charizard), blue (Dragonair), or green (Rayquaza). These abstract types require Natural Language Processing (NLP) of their Pokédex entries to accurately predict, as they lack a unified visual or biological signature.
+
+### Class Distribution & Network Bias
+
+The visualizations below highlight the core reason the Deep Neural Network lagged behind XGBoost: dataset imbalance leading to mode collapse.
+
+<p align="center">
+  <img src="reports/figures/class_dist_xgboost.png" alt="XGBoost Class Distribution" width="800"/>
+  <br>
+  <img src="reports/figures/class_dist_mlp.png" alt="MLP Class Distribution" width="800"/>
+</p>
+
+The Pokémon dataset is inherently unbalanced, heavily skewed towards `Water` and `Normal` types.
+-   **XGBoost:** Maintained an incredibly tight algorithmic grip on the ground truth (blue bar), accurately distributing its predictions across all 18 types as requested.
+-   **Neural Network:** Even with `class_weights` penalizing the network for predicting common classes, the mathematical pressure of the small 1,000-image dataset forced the MLP to largely collapse into predicting exclusively `Water`, `Normal`, and `Flying`, completely ignoring rare types like `Ice` or `Ghost`.
 
 ### Feature Importance Analysis
 
