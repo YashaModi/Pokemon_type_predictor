@@ -91,6 +91,16 @@ pokemon_type_predictor/
 
 **Conclusion:** The purely tabular XGBoost model heavily outperforms the Deep Neural Network. The MLP struggles to overcome the ~1,000-image dataset barrier, leading to structural overfitting regardless of heavy L2 regularization, label smoothing, and dynamic class weights. However, XGBoost's mathematical tree-splitting effortlessly maximizes the dataset size to generalize successfully!
 
+### Feature Importance Analysis
+
+The XGBoost model relies heavily on a synergistic combination of raw visual palettes and calculated biological ratios. By extracting the average Information Gain across all 18 MultiOutput classifications, we can observe the exact mathematical weighting that enables the model to break the "ambiguous color" ceiling.
+
+<p align="center">
+  <img src="reports/figures/xgboost_feature_importance.png" alt="Feature Importance Analysis" width="800"/>
+</p>
+
+The injection of engineered biological metadata (e.g., `bulk_ratio`, `sweeper_ratio`, `total_base_stats`) heavily dominates the top echelon of decision-making. While the dominant K-Means coloration channels (specifically `L` luminosity and `B` blue/yellow channels) provide the algorithm's foundational routing, it is the strict secondary validation against physical traits that allows the model to differentiate between visually identical typings (such as Ice vs. Water or Rock vs. Ground).
+
 ### Visual Prediction Grid
 
 The following grid illustrates the finalized predictions from both pipelines on unseen data.
