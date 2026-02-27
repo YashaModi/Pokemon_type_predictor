@@ -89,10 +89,6 @@ pokemon_type_predictor/
 | **Partial Match Accuracy** | 90.45% | 21.36% |
 | **F1 Score (Micro)** | 0.7425 | 0.1246 |
 
-<p align="center">
-  <img src="reports/figures/model_comparison.png" alt="Model Comparison Chart" width="800"/>
-</p>
-
 **Conclusion:** The purely tabular XGBoost model heavily outperforms the Deep Neural Network. The MLP struggles to overcome the ~1,000-image dataset barrier, leading to structural overfitting regardless of heavy L2 regularization, label smoothing, and dynamic class weights. However, XGBoost's mathematical tree-splitting effortlessly maximizes the dataset size to generalize successfully!
 
 ### Per-Class F1 Score (XGBoost)
